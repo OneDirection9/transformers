@@ -19,7 +19,6 @@ def get_readme():
 
 
 install_requires = [
-    'torch>=1.5.1',
 ]
 
 extras_require = {
