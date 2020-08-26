@@ -6,6 +6,7 @@ import unicodedata
 from collections import OrderedDict
 from typing import Dict, List
 
+from transformers.tokenizations.base import BaseTokenizer
 from transformers.tokenizations.utils import is_control, is_punctuation, is_whitespace
 
 __all__ = ['BertTokenizer', 'BasicTokenizer', 'WordpieceTokenizer']
@@ -44,7 +45,7 @@ def whitespace_tokenize(text: str) -> List[str]:
     return tokens
 
 
-class BertTokenizer(object):
+class BertTokenizer(BaseTokenizer):
     """A BERT tokenizer based on wordpiece."""
 
     def __init__(
@@ -80,11 +81,13 @@ class BertTokenizer(object):
                 this model with masked language modeling. This is the token which the model will try
                 to predict.
         """
-        self.unk_token = unk_token
-        self.sep_token = sep_token
-        self.pad_token = pad_token
-        self.cls_token = cls_token
-        self.mask_token = mask_token
+        super(BertTokenizer, self).__init__(
+            unk_token=unk_token,
+            sep_token=sep_token,
+            pad_token=pad_token,
+            cls_token=cls_token,
+            mask_token=mask_token,
+        )
 
         self.vocab = load_vocab(vocab_file)
         self.inv_vocab = OrderedDict([(v, k) for k, v in self.vocab.items()])
