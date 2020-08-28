@@ -21,7 +21,7 @@ def list_wiki_dir(root: str) -> tuple:
         │   └── ...
         └── ...
     """
-    dirs = os.listdir(root)
+    dirs = sorted(os.listdir(root))
     filenames_list = [os.listdir(os.path.join(root, d)) for d in dirs]
     return dirs, filenames_list
 
