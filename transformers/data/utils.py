@@ -47,7 +47,7 @@ def extract_documents(filepath: str) -> List[List[str]]:
             if not line:
                 continue
 
-            if line[:4] == '<doc':
+            if line[:5] == '<doc ':
                 # start of the document
                 documents.append([])
                 continue
