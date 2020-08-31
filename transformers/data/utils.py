@@ -40,9 +40,8 @@ def extract_documents(filepath: str) -> List[List[str]]:
         a segment which contains one or more natural sentences except the first one which is the
         title.
     """
-    documents = []
+    documents = [[]]
     with open(filepath, 'r') as f:
-        doc = []
         for line in f:
             line = line.strip()
             if not line:
@@ -50,8 +49,7 @@ def extract_documents(filepath: str) -> List[List[str]]:
 
             if line == '</doc>':
                 # end of the document
-                documents.append(doc)
-                doc = []
+                documents.append([])
                 continue
             if line[:4] == '<doc':
                 # Usually this means the start of the document, but there are rarely cases like
@@ -59,7 +57,10 @@ def extract_documents(filepath: str) -> List[List[str]]:
                 continue
             if line[:2] == '[[':
                 continue
-            doc.append(line)
+            documents[-1].append(line)
+
+    # Remove empty documents
+    documents = [x for x in documents if x]
     return documents
 
 
