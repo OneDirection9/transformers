@@ -42,21 +42,24 @@ def extract_documents(filepath: str) -> List[List[str]]:
     """
     documents = []
     with open(filepath, 'r') as f:
+        doc = []
         for line in f:
             line = line.strip()
             if not line:
                 continue
 
-            if line[:5] == '<doc ':
-                # start of the document
-                documents.append([])
-                continue
             if line == '</doc>':
                 # end of the document
+                documents.append(doc)
+                doc = []
+                continue
+            if line[:4] == '<doc':
+                # Usually this means the start of the document, but there are rarely cases like
+                # <document ...>, so we just skip those lines
                 continue
             if line[:2] == '[[':
                 continue
-            documents[-1].append(line)
+            doc.append(line)
     return documents
 
 
