@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 from typing import List
 
-__all__ = ['BaseTokenizer']
+__all__ = ['SpecialTokensMixin', 'BaseTokenizer']
 
 
 class SpecialTokensMixin(object):

@@ -6,10 +6,10 @@ import unicodedata
 from collections import OrderedDict
 from typing import Dict, List
 
-from .base import BaseTokenizer
-from .utils import is_control, is_punctuation, is_whitespace
+from transformers.tokenizations.base import BaseTokenizer
+from transformers.tokenizations.utils import is_control, is_punctuation, is_whitespace
 
-__all__ = ['BertTokenizer']
+__all__ = ['BertTokenizer', 'BasicTokenizer', 'WordpieceTokenizer']
 
 logger = logging.getLogger(__name__)
 
