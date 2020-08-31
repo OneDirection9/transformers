@@ -1,7 +1,10 @@
 from __future__ import absolute_import, division, print_function
 
 import os
-from typing import List
+from typing import Callable, List
+
+import blingfire
+import nltk
 
 
 def list_wiki_dir(root: str) -> tuple:
@@ -57,10 +60,8 @@ def extract_documents(filepath: str) -> List[List[str]]:
     return documents
 
 
-def nltk_sent_tokenize(document: List[str]):
+def nltk_sent_tokenize(document: List[str]) -> List[str]:
     """Tokenizes document into sentences using NLTK."""
-    import nltk
-
     output = []
     for segment in document:
         sentences = nltk.tokenize.sent_tokenize(segment)
@@ -68,9 +69,23 @@ def nltk_sent_tokenize(document: List[str]):
     return output
 
 
-def blingfire_sent_tokenize(document: List[str]):
+def blingfire_sent_tokenize(document: List[str]) -> List[str]:
     """Tokenizes document into sentences using blingfire."""
-    import blingfire
-
     context = ' '.join(document).strip().replace('\n', ' ')
     return blingfire.text_to_sentences(context).split('\n')
+
+
+NAME_TO_SENT_TOKENIZE_FN = {
+    'nltk': nltk_sent_tokenize,
+    'blingfire': blingfire_sent_tokenize,
+}
+
+
+def get_sent_tokenize_fn(name: str) -> Callable:
+    if name not in NAME_TO_SENT_TOKENIZE_FN:
+        raise KeyError(
+            '{}: Unknown tokenization name. Expected are {}'.format(
+                name, list(NAME_TO_SENT_TOKENIZE_FN.keys())
+            )
+        )
+    return NAME_TO_SENT_TOKENIZE_FN[name]
