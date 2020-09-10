@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import os
 
-from transformers.data.utils import extract_documents, get_sent_tokenize_fn, list_wiki_dir
+from transformers.data.utils import get_sent_tokenize_fn, list_wiki_dir, load_documents_in_segment
 
 
 def parse_args():
@@ -34,7 +34,7 @@ def main():
         print('Processing {}'.format(d))
         for filename in filenames:
             input_file = os.path.join(args.input, d, filename)
-            documents = extract_documents(input_file)
+            documents = load_documents_in_segment(input_file)
 
             new_documents = []
             for doc in documents:
