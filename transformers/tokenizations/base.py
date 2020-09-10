@@ -42,6 +42,14 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         """Converts a single index in a token using vocabulary."""
         pass
 
+    def convert_tokens_to_string(self, tokens: List[str]) -> str:
+        """Converts a sequence of tokens in a single string.
+
+        The most simple way to do it is ``" ".join(tokens)`` but we often want to remove sub-word
+        tokenization artifacts at the same time.
+        """
+        return ' '.join(tokens)
+
     def create_token_type_ids_from_sequence(
         self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
     ) -> List[int]:

@@ -112,6 +112,9 @@ class BertTokenizer(BaseTokenizer):
     def convert_id_to_token(self, index: int) -> str:
         return self.inv_vocab[index]
 
+    def convert_tokens_to_string(self, tokens: List[str]) -> str:
+        return ' '.join(tokens).replace(' ##', '').strip()
+
     def create_token_type_ids_from_sequence(
         self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
     ) -> List[int]:
