@@ -4,7 +4,7 @@ import logging
 import os.path as osp
 import unicodedata
 from collections import OrderedDict
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from transformers.tokenizations.base import BaseTokenizer
 from transformers.tokenizations.utils import is_control, is_punctuation, is_whitespace
@@ -26,14 +26,6 @@ def load_vocab(vocab_file: str) -> OrderedDict:
         token = token.rstrip('\n')
         vocab[token] = index
     return vocab
-
-
-def convert_by_vocab(vocab: Dict, items: List) -> List:
-    """Converts a sequence of [tokens|ids] using the vocab."""
-    output = []
-    for item in items:
-        output.append(vocab[item])
-    return output
 
 
 def whitespace_tokenize(text: str) -> List[str]:
@@ -81,14 +73,6 @@ class BertTokenizer(BaseTokenizer):
                 this model with masked language modeling. This is the token which the model will try
                 to predict.
         """
-        super(BertTokenizer, self).__init__(
-            unk_token=unk_token,
-            sep_token=sep_token,
-            pad_token=pad_token,
-            cls_token=cls_token,
-            mask_token=mask_token,
-        )
-
         self.vocab = load_vocab(vocab_file)
         self.inv_vocab = OrderedDict([(v, k) for k, v in self.vocab.items()])
 
@@ -96,10 +80,23 @@ class BertTokenizer(BaseTokenizer):
         self.wordpiece_tokenizer = WordpieceTokenizer(self.vocab, unk_token)
 
         # Check that all special tokens are in the vocabulary
+        # TODO: using better strategy, e.g. add when missing
         special_tokens = [unk_token, sep_token, pad_token, cls_token, mask_token]
         for token in special_tokens:
             if token not in self.vocab:
                 raise KeyError(f'{token} is not in vocabulary')
+
+        self.unk_token = unk_token
+        self.sep_token = sep_token
+        self.pad_token = pad_token
+        self.cls_token = cls_token
+        self.mask_token = mask_token
+
+        self.unk_token_id = self.convert_token_to_id(unk_token)
+        self.sep_token_id = self.convert_token_to_id(sep_token)
+        self.pad_token_id = self.convert_token_to_id(pad_token)
+        self.cls_token_id = self.convert_token_to_id(cls_token)
+        self.mask_token_id = self.convert_token_to_id(mask_token)
 
     def tokenize(self, text: str) -> List[str]:
         """Converts a string in a sequence of tokens, using the tokenizer."""
@@ -109,11 +106,49 @@ class BertTokenizer(BaseTokenizer):
                 split_tokens.append(sub_token)
         return split_tokens
 
-    def convert_tokens_to_ids(self, tokens: List[str]) -> List[int]:
-        return convert_by_vocab(self.vocab, tokens)
+    def convert_token_to_id(self, token: str) -> int:
+        return self.vocab[token]
 
-    def convert_ids_to_tokens(self, ids: List[int]) -> List[str]:
-        return convert_by_vocab(self.inv_vocab, ids)
+    def convert_id_to_token(self, index: int) -> str:
+        return self.inv_vocab[index]
+
+    def create_token_type_ids_from_sequence(
+        self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
+    ) -> List[int]:
+        """Creates a mask from the two sequences to be used in a sequence-pair classification task.
+
+        A BERT sequence pair mask has the following format:
+
+            0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1
+            |  first sequence   | second sequence |
+
+        If token_ids_1 is None, only returns the first portion of the mask (0's).
+        """
+        cls = [self.cls_token_id]
+        sep = [self.sep_token_id]
+        if token_ids_1 is None:
+            # [CLS] X [SEP]
+            return [0] * len(cls + token_ids_0 + sep)
+        # [CLS] A [SEP] B [SEP]
+        return [0] * len(cls + token_ids_0 + sep) + [1] * len(token_ids_1 + sep)
+
+    def build_inputs_with_special_tokens(
+        self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
+    ) -> List[int]:
+        """Builds model inputs from a sequence or a pair of sequence for sequence classification
+        tasks by concatenating and adding special tokens.
+
+        A BERT sequence has the following format:
+        - single sequence: ``[CLS] X [SEP]``
+        - pair of sequences: ``[CLS] A [SEP] B [SEP]``
+        """
+        cls = [self.cls_token_id]
+        sep = [self.sep_token_id]
+        if token_ids_1 is None:
+            # [CLS] X [SEP]
+            return cls + token_ids_0 + sep
+        # [CLS] A [SEP] B [SEP]
+        return cls + token_ids_0 + sep + token_ids_1 + sep
 
 
 class BasicTokenizer(object):
