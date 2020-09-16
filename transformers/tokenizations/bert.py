@@ -92,11 +92,11 @@ class BertTokenizer(BaseTokenizer):
         self.cls_token = cls_token
         self.mask_token = mask_token
 
-        self.unk_token_id = self.convert_token_to_id(unk_token)
-        self.sep_token_id = self.convert_token_to_id(sep_token)
-        self.pad_token_id = self.convert_token_to_id(pad_token)
-        self.cls_token_id = self.convert_token_to_id(cls_token)
-        self.mask_token_id = self.convert_token_to_id(mask_token)
+        self.unk_token_id = self.convert_tokens_to_ids(unk_token)
+        self.sep_token_id = self.convert_tokens_to_ids(sep_token)
+        self.pad_token_id = self.convert_tokens_to_ids(pad_token)
+        self.cls_token_id = self.convert_tokens_to_ids(cls_token)
+        self.mask_token_id = self.convert_tokens_to_ids(mask_token)
 
     def tokenize(self, text: str) -> List[str]:
         """Converts a string in a sequence of tokens, using the tokenizer."""
@@ -106,10 +106,10 @@ class BertTokenizer(BaseTokenizer):
                 split_tokens.append(sub_token)
         return split_tokens
 
-    def convert_token_to_id(self, token: str) -> int:
+    def _convert_token_to_id(self, token: str) -> int:
         return self.vocab[token]
 
-    def convert_id_to_token(self, index: int) -> str:
+    def _convert_id_to_token(self, index: int) -> str:
         return self.inv_vocab[index]
 
     def convert_tokens_to_string(self, tokens: List[str]) -> str:

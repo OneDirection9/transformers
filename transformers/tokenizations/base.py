@@ -21,11 +21,11 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         using vocabulary.
         """
         if isinstance(tokens, str):
-            return self.convert_token_to_id(tokens)
-        return [self.convert_token_to_id(x) for x in tokens]
+            return self._convert_token_to_id(tokens)
+        return [self._convert_token_to_id(x) for x in tokens]
 
     @abstractmethod
-    def convert_token_to_id(self, token: str) -> int:
+    def _convert_token_to_id(self, token: str) -> int:
         """Converts a token in a index using vocabulary."""
         pass
 
@@ -34,11 +34,11 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         using vocabulary.
         """
         if isinstance(ids, int):
-            return self.convert_id_to_token(ids)
-        return [self.convert_id_to_token(x) for x in ids]
+            return self._convert_id_to_token(ids)
+        return [self._convert_id_to_token(x) for x in ids]
 
     @abstractmethod
-    def convert_id_to_token(self, index: int) -> str:
+    def _convert_id_to_token(self, index: int) -> str:
         """Converts a single index in a token using vocabulary."""
         pass
 
