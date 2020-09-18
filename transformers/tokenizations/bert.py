@@ -69,9 +69,9 @@ class BertTokenizer(BaseTokenizer):
             cls_token: The classifier token which is used when doing sequence classification
                 (classification of the whole sequence instead of per-token classification). It is
                 the first token of the sequence when built with special tokens.
-            mask_token:  The token used for masking values. This is the token used when training
-                this model with masked language modeling. This is the token which the model will try
-                to predict.
+            mask_token: The token used for masking values. This is the token used when training this
+                model with masked language modeling. This is the token which the model will try to
+                predict.
         """
         self.vocab = load_vocab(vocab_file)
         self.inv_vocab = OrderedDict([(v, k) for k, v in self.vocab.items()])
