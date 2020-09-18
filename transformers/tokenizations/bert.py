@@ -4,7 +4,7 @@ import logging
 import os.path as osp
 import unicodedata
 from collections import OrderedDict
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from transformers.tokenizations.base import BaseTokenizer
 from transformers.tokenizations.utils import is_control, is_punctuation, is_whitespace
@@ -106,11 +106,15 @@ class BertTokenizer(BaseTokenizer):
                 split_tokens.append(sub_token)
         return split_tokens
 
-    def _convert_token_to_id(self, token: str) -> int:
-        return self.vocab[token]
+    def convert_tokens_to_ids(self, tokens: Union[str, List[str]]) -> Union[int, List[int]]:
+        if isinstance(tokens, str):
+            return self.vocab[tokens]
+        return [self.vocab[x] for x in tokens]
 
-    def _convert_id_to_token(self, index: int) -> str:
-        return self.inv_vocab[index]
+    def convert_ids_to_tokens(self, ids: Union[int, List[int]]) -> Union[str, List[str]]:
+        if isinstance(ids, int):
+            return self.inv_vocab[ids]
+        return [self.inv_vocab[x] for x in ids]
 
     def convert_tokens_to_string(self, tokens: List[str]) -> str:
         return ' '.join(tokens).replace(' ##', '').strip()

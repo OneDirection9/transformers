@@ -16,30 +16,18 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         """Tokenizes text into list of tokens"""
         pass
 
+    @abstractmethod
     def convert_tokens_to_ids(self, tokens: Union[str, List[str]]) -> Union[int, List[int]]:
         """Converts a token or a sequence of tokens in a single index or a sequence of indices,
         using vocabulary.
         """
-        if isinstance(tokens, str):
-            return self._convert_token_to_id(tokens)
-        return [self._convert_token_to_id(x) for x in tokens]
-
-    @abstractmethod
-    def _convert_token_to_id(self, token: str) -> int:
-        """Converts a token in a index using vocabulary."""
         pass
 
+    @abstractmethod
     def convert_ids_to_tokens(self, ids: Union[int, List[int]]) -> Union[str, List[str]]:
         """Converts a single index or a sequence of indices in a token or a sequence of tokens,
         using vocabulary.
         """
-        if isinstance(ids, int):
-            return self._convert_id_to_token(ids)
-        return [self._convert_id_to_token(x) for x in ids]
-
-    @abstractmethod
-    def _convert_id_to_token(self, index: int) -> str:
-        """Converts a single index in a token using vocabulary."""
         pass
 
     def convert_tokens_to_string(self, tokens: List[str]) -> str:
