@@ -41,7 +41,7 @@ def truncate_sentence(
     ids: List[int],
     pair_ids: Optional[List[int]] = None,
     num_tokens_to_remove: int = 0,
-    truncation_strategy: Union[str, TruncationStrategy] = 'longest_first',
+    truncation_strategy: Union[str, TruncationStrategy] = TruncationStrategy.LONGEST_FIRST,
     stride: int = 0,
 ) -> Tuple[List[int], List[int], List[int]]:
     """Truncates a sequence pair in-place following the strategy.
