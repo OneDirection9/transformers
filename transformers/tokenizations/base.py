@@ -61,6 +61,9 @@ def truncate_sentence(
         stride: If set to a positive number, the overflowing tokens returned will contain some
             tokens from the main sequence returned. The value of this argument defines the number of
             additional tokens.
+
+    Returns:
+        The truncated ``ids``, the truncated ``pair_ids`` and the list of overflowing tokens.
     """
     if num_tokens_to_remove <= 0:
         return ids, pair_ids, []
