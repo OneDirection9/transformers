@@ -12,19 +12,7 @@ __all__ = ['BaseTokenizer']
 logger = logging.getLogger(__name__)
 
 
-class ExplicitEnum(Enum):
-    """Enum with more explicit error message for missing values."""
-
-    @classmethod
-    def _missing_(cls, value):
-        raise ValueError(
-            '{} is not a valid {}, please select one of {}'.format(
-                value, cls.__name__, list(cls._value2member_map_.keys())
-            )
-        )
-
-
-class TruncationStrategy(ExplicitEnum):
+class TruncationStrategy(Enum):
     """Possible values for the truncation."""
     ONLY_FIRST = 'only_first'
     ONLY_SECOND = 'only_second'
@@ -32,7 +20,7 @@ class TruncationStrategy(ExplicitEnum):
     DO_NOT_TRUNCATE = 'do_not_truncate'
 
 
-class PaddingStrategy(ExplicitEnum):
+class PaddingStrategy(Enum):
     """Possible values for the padding."""
     LONGEST = 'longest'
     MAX_LENGTH = 'max_length'
