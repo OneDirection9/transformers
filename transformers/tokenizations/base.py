@@ -39,7 +39,7 @@ class PaddingStrategy(ExplicitEnum):
     DO_NOT_PAD = 'do_not_pad'
 
 
-def truncate_sentence(
+def truncate_sequence(
     ids: List[int],
     pair_ids: Optional[List[int]] = None,
     num_tokens_to_remove: int = 0,
@@ -116,7 +116,7 @@ def truncate_sentence(
     return ids, pair_ids, overflowing_tokens
 
 
-def batch_pad_sentence(
+def batch_pad_sequence(
     batch_ids: List[torch.Tensor],
     padding_value: int,
     max_length: Optional[int] = None,
