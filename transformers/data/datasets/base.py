@@ -1,6 +1,9 @@
 from __future__ import absolute_import, division, print_function
 
+from typing import List
+
 from torch.utils.data import Dataset
+from torch.utils.data.dataloader import default_collate
 
 from transformers.tokenizations import BaseTokenizer
 
@@ -18,3 +21,11 @@ class BaseDataset(Dataset):
     @property
     def tokenizer(self) -> BaseTokenizer:
         return self._tokenizer
+
+    def collate_fn(self, batch: List):
+        """Merges a list of samples to form a mini-batch.
+
+        Args:
+            batch: Samples to collate.
+        """
+        return default_collate(batch)
