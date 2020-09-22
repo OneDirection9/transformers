@@ -7,6 +7,8 @@ from torch.utils.data.dataloader import default_collate
 
 from transformers.tokenizations import BaseTokenizer
 
+__all__ = ['BaseDataset']
+
 
 class BaseDataset(Dataset):
     """Base natural language dataset.
