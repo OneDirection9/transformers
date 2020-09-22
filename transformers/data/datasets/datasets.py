@@ -3,14 +3,14 @@ from __future__ import absolute_import, division, print_function
 from typing import List
 
 import numpy as np
-from torch.utils.data import Dataset
 
 from transformers.tokenizations import BaseTokenizer
+from .base import BaseDataset
 
 __all__ = ['LineByLineTextDataset']
 
 
-class LineByLineTextDataset(Dataset):
+class LineByLineTextDataset(BaseDataset):
     """Loading examples from a list of files line by line."""
 
     def __init__(
@@ -26,7 +26,8 @@ class LineByLineTextDataset(Dataset):
             ignore_title: If True, the first line of each document is treated as title, and will be
                 ignored.
         """
-        self.tokenizer = tokenizer
+        super(LineByLineTextDataset, self).__init__(tokenizer)
+
         self.ignore_title = ignore_title
 
         self.tokens_list = []
