@@ -52,7 +52,9 @@ def batch_pad_sequence(
     if padding_strategy == PaddingStrategy.LONGEST:
         max_length = max([x.size(0) for x in batch_ids])
 
-    if max_length is not None and pad_to_multiple_of is not None:
+    assert max_length is not None
+
+    if pad_to_multiple_of is not None:
         max_length = (
             (max_length + pad_to_multiple_of - 1) // pad_to_multiple_of * pad_to_multiple_of
         )
