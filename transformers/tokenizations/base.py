@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import logging
 from abc import ABCMeta, abstractmethod
 from enum import Enum
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 __all__ = ['TruncationStrategy', 'truncate_sequence', 'BaseTokenizer']
 
@@ -96,9 +96,11 @@ def truncate_sequence(
 
 
 class BaseTokenizer(object, metaclass=ABCMeta):
-    """Base class for tokenization."""
+    """Base class for tokenization.
 
-    # TODO: add encode, pad, and so on
+    We only provided unified interface to handle specific behaviors related to special tokens,
+    instead of making assumptions about special tokens.
+    """
 
     @abstractmethod
     def tokenize(self, text: str) -> List[str]:
@@ -127,41 +129,31 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         """
         return ' '.join(tokens)
 
-    def create_token_type_ids_from_sequence(
-        self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
-    ) -> List[int]:
-        """Creates the token type IDs corresponding to the sequences passed.
-        `What are token type IDs? <../glossary.html#token-type-ids>`__
+    @abstractmethod
+    def encode(
+        self,
+        text: str,
+        text_pair: Optional[str] = None,
+        max_length: Optional[int] = None,
+        truncation_strategy: Union[str, TruncationStrategy] = TruncationStrategy.DO_NOT_TRUNCATE,
+        stride: int = 0,
+    ) -> Dict:
+        """Encodes a sequence or a pair of sequences.
 
-        Should be overriden in a subclass if the model has a special way of building those.
-
-        Args:
-            token_ids_0: The first tokenized sequence.
-            token_ids_1: The second tokenized sequence.
-
-        Returns:
-            The token type ids.
-        """
-        if token_ids_1 is None:
-            return [0] * len(token_ids_0)
-        return [0] * len(token_ids_0) + [1] * len(token_ids_1)
-
-    def build_inputs_with_special_tokens(
-        self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
-    ) -> List[int]:
-        """Builds model inputs from a sequence or a pair of sequence for sequence classification
-        tasks by concatenating and adding special tokens.
-
-        This implementation does not add special tokens and this method should be overriden in a
-        subclass.
+        The highest interface of a tokenizer that usually used by dataset to encode a sequence or a
+        pair of sequences. You can tokenize sequences, convert to ids, add special tokens, and
+        truncate sequences if overflowing while taking into account the special tokens and manages
+        a moving window (with user defined stride) for overflowing tokens.
 
         Args:
-            token_ids_0: The first tokenized sequence.
-            token_ids_1: The second tokenized sequence.
+            text: The first sequence.
+            text_pair: The second sequence.
+            max_length: The maximum length to use by the truncation.
+            truncation_strategy: See :func:`truncate_sequence`.
+            stride: See :func:`truncate_sequence`.
 
         Returns:
-            The model input with special tokens.
+            Dict: You may need to return other values, e.g. token type ids and special token mask,
+            besides input ids. So using a dictionary to do that.
         """
-        if token_ids_1 is None:
-            return token_ids_0
-        return token_ids_0 + token_ids_1
+        pass
