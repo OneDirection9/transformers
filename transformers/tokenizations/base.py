@@ -4,8 +4,6 @@ import logging
 from abc import ABCMeta, abstractmethod
 from typing import List, Optional, Union
 
-from torch.utils.data.dataloader import default_collate
-
 __all__ = ['BaseTokenizer']
 
 logger = logging.getLogger(__name__)
@@ -61,10 +59,11 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         """
         pass
 
-    def collate_fn(self, batch: List):
-        """Merges a list of samples to form a mini-batch of Tensor(s). Used when using batched
-        loading from a map-style dataset.
+    def get_collate_fn(self) -> None:
+        """Returns a function that takes a list of samples as input and merges them to form a
+        mini-batch of Tensor(s).
 
-        Using :func:`torch.utils.data.dataloader.default_collate` by default.
+        We may need to pass arguments to the collate_fn, so we define a wrapper rather than a
+        collate function directly.
         """
-        return default_collate(batch)
+        pass
