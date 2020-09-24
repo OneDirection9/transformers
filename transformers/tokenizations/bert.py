@@ -6,8 +6,6 @@ import unicodedata
 from collections import OrderedDict
 from typing import Dict, List, Optional, Union
 
-import torch
-
 from .base import BaseTokenizer
 from .utils import TruncationStrategy, is_control, is_punctuation, is_whitespace, truncate_sequence
 
@@ -214,7 +212,7 @@ class BertTokenizer(BaseTokenizer):
         stride: int = 0,
         return_token_type_ids: bool = False,
         return_special_tokens_mask: bool = True,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> Dict[str, List[int]]:
         """
         Args:
             text:
@@ -226,7 +224,7 @@ class BertTokenizer(BaseTokenizer):
             return_special_tokens_mask: Whether to return special tokens mask information.
 
         Returns:
-            Dict[str, torch.Tensor]: A dictionary with following fields:
+            Dict[str, List[int]]: A dictionary with following fields:
             - **input_ids**: List of token ids to be fed to a model.
             - **toke_type_ids**: List of token type ids to be fed to a model.
             - **special_tokens_mask**: List of 1s and 0s, with 1 specifying added special tokens and
@@ -251,17 +249,14 @@ class BertTokenizer(BaseTokenizer):
                 stride,
             )
 
-        encoded_inputs = {}
-
-        input_ids = self.build_inputs_with_special_tokens(ids, pair_ids)
-        encoded_inputs['input_ids'] = torch.tensor(input_ids, torch.long)
+        encoded_inputs = {'input_ids': self.build_inputs_with_special_tokens(ids, pair_ids)}
 
         if return_token_type_ids:
-            token_type_ids = self.create_token_type_ids_from_sequences(ids, pair_ids)
-            encoded_inputs['token_type_ids'] = torch.tensor(token_type_ids, torch.long)
+            encoded_inputs['token_type_ids'] = self.create_token_type_ids_from_sequences(
+                ids, pair_ids
+            )
         if return_special_tokens_mask:
-            special_tokens_mask = self.get_special_tokens_mask(ids, pair_ids)
-            encoded_inputs['special_tokens_mask'] = torch.tensor(special_tokens_mask, torch.long)
+            encoded_inputs['special_tokens_mask'] = self.get_special_tokens_mask(ids, pair_ids)
 
         return encoded_inputs
 
