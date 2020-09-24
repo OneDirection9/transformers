@@ -58,12 +58,3 @@ class BaseTokenizer(object, metaclass=ABCMeta):
             text_pair: The second sequence.
         """
         pass
-
-    def get_collate_fn(self) -> None:
-        """Returns a function that takes a list of samples as input and merges them to form a
-        mini-batch of Tensor(s).
-
-        We may need to pass arguments to the collate_fn, so we define a wrapper rather than a
-        collate function directly.
-        """
-        pass
