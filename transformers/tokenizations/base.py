@@ -2,9 +2,9 @@ from __future__ import absolute_import, division, print_function
 
 import logging
 from abc import ABCMeta, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 
-from .utils import TruncationStrategy
+from torch.utils.data.dataloader import default_collate
 
 __all__ = ['BaseTokenizer']
 
@@ -47,14 +47,7 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         return ' '.join(tokens)
 
     @abstractmethod
-    def encode(
-        self,
-        text: str,
-        text_pair: Optional[str] = None,
-        max_length: Optional[int] = None,
-        truncation_strategy: Union[str, TruncationStrategy] = TruncationStrategy.DO_NOT_TRUNCATE,
-        stride: int = 0,
-    ) -> Dict:
+    def encode(self, text: str, text_pair: Optional[str] = None):
         """Encodes a sequence or a pair of sequences.
 
         The highest interface of a tokenizer that usually used by dataset to encode a sequence or a
@@ -65,12 +58,13 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         Args:
             text: The first sequence.
             text_pair: The second sequence.
-            max_length: The maximum length to use by the truncation.
-            truncation_strategy: See :func:`truncate_sequence`.
-            stride: See :func:`truncate_sequence`.
-
-        Returns:
-            Dict: You may need to return other values, e.g. token type ids and special token mask,
-            besides input ids. So using a dictionary to do that.
         """
         pass
+
+    def collate_fn(self, batch: List):
+        """Merges a list of samples to form a mini-batch of Tensor(s). Used when using batched
+        loading from a map-style dataset.
+
+        Using :func:`torch.utils.data.dataloader.default_collate` by default.
+        """
+        return default_collate(batch)
