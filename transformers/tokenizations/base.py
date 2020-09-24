@@ -15,7 +15,8 @@ class BaseTokenizer(object, metaclass=ABCMeta):
     """Base class for tokenization.
 
     We only provided unified interface to handle specific behaviors related to special tokens,
-    instead of making assumptions about special tokens.
+    instead of making assumptions about special tokens. So that users can define the class
+    attributes name of special tokens anything what they want.
     """
 
     @abstractmethod
