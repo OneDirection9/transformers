@@ -205,8 +205,8 @@ class BertTokenizer(BaseTokenizer):
 
     def encode(
         self,
-        text: str,
-        text_pair: Optional[str] = None,
+        text: Union[str, List[str], List[int]],
+        text_pair: Optional[Union[str, List[str], List[int]]] = None,
         max_length: Optional[int] = None,
         truncation_strategy: Union[str, TruncationStrategy] = TruncationStrategy.LONGEST_FIRST,
         stride: int = 0,
@@ -230,10 +230,22 @@ class BertTokenizer(BaseTokenizer):
             - **special_tokens_mask**: List of 1s and 0s, with 1 specifying added special tokens and
               0 specifying regular sequence tokens.
         """
-        ids = self.convert_tokens_to_ids(self.tokenize(text))
-        pair_ids = self.convert_tokens_to_ids(
-            self.tokenize(text_pair)
-        ) if text_pair is not None else None
+
+        def get_input_ids(text: Union[str, List[str], List[int]]) -> List[int]:
+            if isinstance(text, str):
+                return self.convert_tokens_to_ids(self.tokenize(text))
+            elif isinstance(text, (list, tuple)) and len(text) > 0 and isinstance(text[0], str):
+                return self.convert_tokens_to_ids(text)
+            elif isinstance(text, (list, tuple)) and len(text) > 0 and isinstance(text[0], int):
+                return text
+            else:
+                raise ValueError(
+                    'Input is not valid. Should be a string, a list/tuple of strings '
+                    'or a list/tuple of integers'
+                )
+
+        ids = get_input_ids(text)
+        pair_ids = get_input_ids(text_pair) if text_pair is not None else None
 
         pair = bool(pair_ids is not None)
         len_ids = len(ids)
