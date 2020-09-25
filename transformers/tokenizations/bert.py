@@ -124,7 +124,7 @@ class BertTokenizer(BaseTokenizer):
 
         Args:
             pair: Whether the number of added tokens should be computed in the case of a sequence
-            pair or a single sequence.
+                pair or a single sequence.
 
         Returns:
             int: Number of special tokens added to sequences.
