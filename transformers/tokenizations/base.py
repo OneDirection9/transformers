@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import logging
 from abc import ABCMeta, abstractmethod
-from typing import List, Optional, Union
+from typing import List, Union
 
 __all__ = ['BaseTokenizer']
 
@@ -44,17 +44,20 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         """
         return ' '.join(tokens)
 
-    @abstractmethod
-    def encode(self, text: str, text_pair: Optional[str] = None):
-        """Encodes a sequence or a pair of sequences.
+    def encode(self, text: str) -> List[int]:
+        """Encodes a sequence.
 
-        The highest interface of a tokenizer that usually used by dataset to encode a sequence or a
-        pair of sequences. You can tokenize sequences, convert to ids, add special tokens, and
-        truncate sequences if overflowing while taking into account the special tokens and manages
-        a moving window (with user defined stride) for overflowing tokens.
-
-        Args:
-            text: The first sequence.
-            text_pair: The second sequence.
+        Tokenizes a sequence into tokens and convert tokens to ids.
         """
-        pass
+        tokens = self.tokenize(text)
+        ids = self.convert_tokens_to_ids(tokens)
+        return ids
+
+    def decode(self, ids: List[int]) -> str:
+        """Decodes a sequence.
+
+        Convert ids to tokens and convert tokens to a string.
+        """
+        tokens = self.convert_ids_to_tokens(ids)
+        text = self.convert_tokens_to_string(tokens)
+        return text
