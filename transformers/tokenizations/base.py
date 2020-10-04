@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import logging
 from abc import ABCMeta, abstractmethod
-from typing import List, Union
+from typing import Dict, List, Union
 
 __all__ = ['BaseTokenizer']
 
@@ -12,10 +12,62 @@ logger = logging.getLogger(__name__)
 class BaseTokenizer(object, metaclass=ABCMeta):
     """Base class for tokenization.
 
-    We provide unified interface to handle specific behaviors related to special tokens, instead of
-    making assumptions about special tokens. So that users can define the class attributes name of
-    special tokens anything what they want.
+    This class provides a class attribute :attr:`SPECIAL_TOKENS_ATTRIBUTES` that user can define the
+    class attributes related to special tokens, instead of specifying special tokens.
+
+    The inherited classes should handle specific behaviors related to special tokens. In particular,
+    those classes hold the attributes which can be used to directly access these special tokens in a
+    model-independent manner.
     """
+
+    # Should be override by sub-class to specify class attributes' name related to special tokens
+    SPECIAL_TOKENS_ATTRIBUTES = []
+
+    @property
+    def special_tokens_map(self) -> Dict[str, str]:
+        """
+        Returns:
+            Dict[str, str]: A dictionary mapping special token class attributes (:obj:`cls_token`,
+                :obj:`unk_token`, etc.) to their values (:obj:`'<unk>'`, :obj:`'<cls>'`, etc.).
+        """
+        set_attr = {}
+        for attr in self.SPECIAL_TOKENS_ATTRIBUTES:
+            attr_value = getattr(self, attr)
+            set_attr[attr] = attr_value
+        return set_attr
+
+    @property
+    def all_special_tokens(self) -> List[str]:
+        """
+        Returns:
+            List[str]: All the special tokens (:obj:`'<unk>'`, :obj:`'<cls>'`, etc.) mapped to class
+                attributes.
+        """
+        all_toks = []
+        set_attr = self.special_tokens_map
+        for attr_value in set_attr.values():
+            all_toks.append(attr_value)
+        return all_toks
+
+    @property
+    def all_special_tokens_ids(self) -> List[int]:
+        """
+        Returns:
+            List[int]: List the ids of the special tokens(:obj:`'<unk>'`, :obj:`'<cls>'`, etc.)
+                mapped to class attributes.
+        """
+        all_toks = self.all_special_tokens
+        all_ids = self.convert_tokens_to_ids(all_toks)
+        return all_ids
+
+    def check_special_tokens_attributes(self) -> None:
+        for attr in self.SPECIAL_TOKENS_ATTRIBUTES:
+            if not hasattr(self, attr):
+                raise AttributeError(f"{self.__class__.__name__} does't have attribute {attr}")
+
+    @abstractmethod
+    def __len__(self) -> int:
+        pass
 
     @abstractmethod
     def tokenize(self, text: str) -> List[str]:
@@ -47,7 +99,7 @@ class BaseTokenizer(object, metaclass=ABCMeta):
     def encode(self, text: str) -> List[int]:
         """Encodes a sequence.
 
-        Tokenizes a sequence into tokens and convert tokens to ids.
+        Tokenize a sequence into tokens and convert tokens to ids.
         """
         tokens = self.tokenize(text)
         ids = self.convert_tokens_to_ids(tokens)

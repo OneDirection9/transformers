@@ -40,6 +40,14 @@ def whitespace_tokenize(text: str) -> List[str]:
 class BertTokenizer(BaseTokenizer):
     """A BERT tokenizer based on wordpiece."""
 
+    SPECIAL_TOKENS_ATTRIBUTES = [
+        'unk_token',
+        'sep_token',
+        'pad_token',
+        'cls_token',
+        'mask_token',
+    ]
+
     def __init__(
         self,
         vocab_file: str,
@@ -79,12 +87,7 @@ class BertTokenizer(BaseTokenizer):
         self.basic_tokenizer = BasicTokenizer(do_lower_case, tokenize_chinese_chars)
         self.wordpiece_tokenizer = WordpieceTokenizer(self.vocab, unk_token)
 
-        # Check that all special tokens are in the vocabulary
-        # TODO: using better strategy, e.g. add when missing
-        special_tokens = [unk_token, sep_token, pad_token, cls_token, mask_token]
-        for token in special_tokens:
-            if token not in self.vocab:
-                raise KeyError(f'{token} is not in vocabulary')
+        self.add_tokens([unk_token, sep_token, pad_token, cls_token, mask_token])
 
         self.unk_token = unk_token
         self.sep_token = sep_token
@@ -97,6 +100,32 @@ class BertTokenizer(BaseTokenizer):
         self.pad_token_id = self.convert_tokens_to_ids(pad_token)
         self.cls_token_id = self.convert_tokens_to_ids(cls_token)
         self.mask_token_id = self.convert_tokens_to_ids(mask_token)
+
+        self.check_special_tokens_attributes()
+
+    def add_tokens(self, tokens: List[str]) -> int:
+        """Adds a list of new tokens to the tokenizer class. If the new tokens are not in the
+        vocabulary, they are added to it with indices starting from length of the current
+        vocabulary.
+
+        Returns:
+            int: Number of tokens added to the vocabulary.
+        """
+        tokens_to_add = []
+        for token in tokens:
+            if token not in self.vocab:
+                logger.info(f'Adding {token} to the vocabulary')
+                tokens_to_add.append(token)
+
+        added_vocab = dict((tok, len(self) + i) for i, tok in enumerate(tokens_to_add))
+        added_inv_vocab = {v: k for k, v in added_vocab.items()}
+        self.vocab.update(added_vocab)
+        self.inv_vocab.update(added_inv_vocab)
+
+        return len(tokens_to_add)
+
+    def __len__(self):
+        return len(self.vocab)
 
     def tokenize(self, text: str) -> List[str]:
         """Converts a string in a sequence of tokens, using the tokenizer."""
