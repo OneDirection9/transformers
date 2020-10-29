@@ -4,10 +4,10 @@ import logging
 import os.path as osp
 import unicodedata
 from collections import OrderedDict
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Union
 
 from .base import BaseTokenizer
-from .utils import TruncationStrategy, is_control, is_punctuation, is_whitespace, truncate_sequence
+from .utils import is_control, is_punctuation, is_whitespace
 
 __all__ = ['BertTokenizer', 'BasicTokenizer', 'WordpieceTokenizer']
 
@@ -147,159 +147,6 @@ class BertTokenizer(BaseTokenizer):
 
     def convert_tokens_to_string(self, tokens: List[str]) -> str:
         return ' '.join(tokens).replace(' ##', '').strip()
-
-    def num_special_tokens_to_add(self, pair: bool = False) -> int:
-        """Returns the number of added tokens when encoding a sequence with special tokens.
-
-        Args:
-            pair: Whether the number of added tokens should be computed in the case of a sequence
-                pair or a single sequence.
-
-        Returns:
-            int: Number of special tokens added to sequences.
-        """
-        return len(self.build_inputs_with_special_tokens([], [] if pair else None))
-
-    def build_inputs_with_special_tokens(
-        self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
-    ) -> List[int]:
-        """Builds model inputs from a sequence or a pair of sequence for sequence classification
-        tasks by concatenating and adding special tokens.
-
-        A BERT sequence has the following format:
-        - single sequence: ``[CLS] X [SEP]``
-        - pair of sequences: ``[CLS] A [SEP] B [SEP]``
-        """
-        cls = [self.cls_token_id]
-        sep = [self.sep_token_id]
-        if token_ids_1 is None:
-            # [CLS] X [SEP]
-            return cls + token_ids_0 + sep
-        # [CLS] A [SEP] B [SEP]
-        return cls + token_ids_0 + sep + token_ids_1 + sep
-
-    def create_token_type_ids_from_sequences(
-        self, token_ids_0: List[int], token_ids_1: Optional[List[int]] = None
-    ) -> List[int]:
-        """Creates a mask from the two sequences to be used in a sequence-pair classification task.
-
-        A BERT sequence pair mask has the following format:
-
-            0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1
-            |  first sequence   | second sequence |
-
-        If token_ids_1 is None, only returns the first portion of the mask (0's).
-        """
-        cls = [self.cls_token_id]
-        sep = [self.sep_token_id]
-        if token_ids_1 is None:
-            # [CLS] X [SEP]
-            return [0] * len(cls + token_ids_0 + sep)
-        # [CLS] A [SEP] B [SEP]
-        return [0] * len(cls + token_ids_0 + sep) + [1] * len(token_ids_1 + sep)
-
-    def get_special_tokens_mask(
-        self,
-        token_ids_0: List[int],
-        token_ids_1: Optional[List[int]] = None,
-        already_has_special_tokens: bool = False,
-    ) -> List[int]:
-        """Retrieves sequence ids from a token list that has no special tokens added.
-
-        Args:
-            token_ids_0:
-            token_ids_1:
-            already_has_special_tokens: Whether or not the token list is already formatted with
-                special tokens.
-
-        Returns:
-            List[int]: A list of integers in the range [0, 1]: 1 for a special token, 0 for a
-            sequence token.
-        """
-        if already_has_special_tokens:
-            if token_ids_1 is not None:
-                raise ValueError(
-                    'You should not supply a second sequence if the provided sequence of ids is '
-                    'already formatted with special tokens'
-                )
-            return list(
-                map(lambda x: 1 if x in {self.cls_token_id, self.sep_token_id} else 0, token_ids_0)
-            )
-
-        if token_ids_1 is None:
-            # [CLS] X [SEP]
-            return [1] + ([0] * len(token_ids_0)) + [1]
-        # [CLS] A [SEP] B [SEP]
-        return [1] + ([0] * len(token_ids_0)) + [1] + ([0] * len(token_ids_1)) + [1]
-
-    def encode(
-        self,
-        text: Union[str, List[str], List[int]],
-        text_pair: Optional[Union[str, List[str], List[int]]] = None,
-        max_length: Optional[int] = None,
-        truncation_strategy: Union[str, TruncationStrategy] = TruncationStrategy.LONGEST_FIRST,
-        stride: int = 0,
-        return_token_type_ids: bool = False,
-        return_special_tokens_mask: bool = True,
-    ) -> Dict[str, List[int]]:
-        """
-        Args:
-            text:
-            text_pair:
-            max_length: Maximum length of token type ids to be fed to a model.
-            truncation_strategy: See :func:`truncate_sequence`.
-            stride: See :func:`truncate_sequence`.
-            return_token_type_ids: Whether to return token type IDs.
-            return_special_tokens_mask: Whether to return special tokens mask information.
-
-        Returns:
-            Dict[str, List[int]]: A dictionary with following fields:
-            - **input_ids**: List of token ids to be fed to a model.
-            - **toke_type_ids**: List of token type ids to be fed to a model.
-            - **special_tokens_mask**: List of 1s and 0s, with 1 specifying added special tokens and
-              0 specifying regular sequence tokens.
-        """
-
-        def get_input_ids(text: Union[str, List[str], List[int]]) -> List[int]:
-            if isinstance(text, str):
-                return self.convert_tokens_to_ids(self.tokenize(text))
-            elif isinstance(text, (list, tuple)) and len(text) > 0 and isinstance(text[0], str):
-                return self.convert_tokens_to_ids(text)
-            elif isinstance(text, (list, tuple)) and len(text) > 0 and isinstance(text[0], int):
-                return text
-            else:
-                raise ValueError(
-                    'Input is not valid. Should be a string, a list/tuple of strings '
-                    'or a list/tuple of integers'
-                )
-
-        ids = get_input_ids(text)
-        pair_ids = get_input_ids(text_pair) if text_pair is not None else None
-
-        pair = bool(pair_ids is not None)
-        len_ids = len(ids)
-        len_pair_ids = len(pair_ids) if pair_ids is not None else 0
-
-        total_len = len_ids + len_pair_ids + self.num_special_tokens_to_add(pair)
-        if max_length is not None and total_len > max_length:
-            ids, pair_ids, _ = truncate_sequence(
-                ids,
-                pair_ids,
-                total_len - max_length,
-                truncation_strategy,
-                stride,
-            )
-
-        encoded_inputs = {'input_ids': self.build_inputs_with_special_tokens(ids, pair_ids)}
-
-        if return_token_type_ids:
-            encoded_inputs['token_type_ids'] = self.create_token_type_ids_from_sequences(
-                ids, pair_ids
-            )
-        if return_special_tokens_mask:
-            encoded_inputs['special_tokens_mask'] = self.get_special_tokens_mask(ids, pair_ids)
-
-        return encoded_inputs
 
 
 class BasicTokenizer(object):
