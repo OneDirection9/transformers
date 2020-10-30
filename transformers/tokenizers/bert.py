@@ -1,10 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
 import logging
-import os.path as osp
 import unicodedata
-from collections import OrderedDict
-from typing import Dict, List, Union
+from typing import Dict, List
 
 from .base import BaseTokenizer
 from .utils import is_control, is_punctuation, is_whitespace
@@ -12,20 +10,6 @@ from .utils import is_control, is_punctuation, is_whitespace
 __all__ = ['BertTokenizer', 'BasicTokenizer', 'WordpieceTokenizer']
 
 logger = logging.getLogger(__name__)
-
-
-def load_vocab(vocab_file: str) -> OrderedDict:
-    """Loads a vocabulary file into a dictionary."""
-    if not osp.isfile(vocab_file):
-        raise FileNotFoundError(f"Vocabulary file path ({vocab_file}) doesn't exist.")
-
-    vocab = OrderedDict()
-    with open(vocab_file, 'r', encoding='utf-8') as reader:
-        tokens = reader.readlines()
-    for index, token in enumerate(tokens):
-        token = token.rstrip('\n')
-        vocab[token] = index
-    return vocab
 
 
 def whitespace_tokenize(text: str) -> List[str]:
@@ -81,13 +65,9 @@ class BertTokenizer(BaseTokenizer):
                 model with masked language modeling. This is the token which the model will try to
                 predict.
         """
-        self.vocab = load_vocab(vocab_file)
-        self.inv_vocab = OrderedDict([(v, k) for k, v in self.vocab.items()])
-
-        self.basic_tokenizer = BasicTokenizer(do_lower_case, tokenize_chinese_chars)
-        self.wordpiece_tokenizer = WordpieceTokenizer(self.vocab, unk_token)
-
-        self.add_tokens([unk_token, sep_token, pad_token, cls_token, mask_token])
+        with open(vocab_file, 'r', encoding='utf-8') as f:
+            tokens = f.readlines()
+        tokens = [tok.rstrip('\n') for tok in tokens]
 
         self.unk_token = unk_token
         self.sep_token = sep_token
@@ -95,37 +75,16 @@ class BertTokenizer(BaseTokenizer):
         self.cls_token = cls_token
         self.mask_token = mask_token
 
+        super(BertTokenizer, self).__init__(tokens)
+
+        self.basic_tokenizer = BasicTokenizer(do_lower_case, tokenize_chinese_chars)
+        self.wordpiece_tokenizer = WordpieceTokenizer(self._vocab, unk_token)
+
         self.unk_token_id = self.convert_tokens_to_ids(unk_token)
         self.sep_token_id = self.convert_tokens_to_ids(sep_token)
         self.pad_token_id = self.convert_tokens_to_ids(pad_token)
         self.cls_token_id = self.convert_tokens_to_ids(cls_token)
         self.mask_token_id = self.convert_tokens_to_ids(mask_token)
-
-        self.check_special_tokens_attributes()
-
-    def add_tokens(self, tokens: List[str]) -> int:
-        """Adds a list of new tokens to the tokenizer class. If the new tokens are not in the
-        vocabulary, they are added to it with indices starting from length of the current
-        vocabulary.
-
-        Returns:
-            int: Number of tokens added to the vocabulary.
-        """
-        tokens_to_add = []
-        for token in tokens:
-            if token not in self.vocab:
-                logger.info(f'Adding {token} to the vocabulary')
-                tokens_to_add.append(token)
-
-        added_vocab = dict((tok, len(self) + i) for i, tok in enumerate(tokens_to_add))
-        added_inv_vocab = {v: k for k, v in added_vocab.items()}
-        self.vocab.update(added_vocab)
-        self.inv_vocab.update(added_inv_vocab)
-
-        return len(tokens_to_add)
-
-    def __len__(self):
-        return len(self.vocab)
 
     def tokenize(self, text: str) -> List[str]:
         """Converts a string in a sequence of tokens, using the tokenizer."""
@@ -134,16 +93,6 @@ class BertTokenizer(BaseTokenizer):
             for sub_token in self.wordpiece_tokenizer.tokenize(token):
                 split_tokens.append(sub_token)
         return split_tokens
-
-    def convert_tokens_to_ids(self, tokens: Union[str, List[str]]) -> Union[int, List[int]]:
-        if isinstance(tokens, str):
-            return self.vocab[tokens]
-        return [self.vocab[x] for x in tokens]
-
-    def convert_ids_to_tokens(self, ids: Union[int, List[int]]) -> Union[str, List[str]]:
-        if isinstance(ids, int):
-            return self.inv_vocab[ids]
-        return [self.inv_vocab[x] for x in ids]
 
     def convert_tokens_to_string(self, tokens: List[str]) -> str:
         return ' '.join(tokens).replace(' ##', '').strip()
