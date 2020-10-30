@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import logging
 import unicodedata
-from typing import Dict, List
+from typing import Any, Dict, List, Optional, Union
 
 from .base import BaseTokenizer
 from .utils import is_control, is_punctuation, is_whitespace
@@ -90,6 +90,43 @@ class BertTokenizer(BaseTokenizer):
 
     def convert_tokens_to_string(self, tokens: List[str]) -> str:
         return ' '.join(tokens).replace(' ##', '').strip()
+
+    def __call__(
+        self,
+        text: Union[str, List[str]],
+        text_pair: Optional[Union[str, List[str]]] = None,
+    ) -> Dict[str, Any]:
+
+        def get_input_ids(inp: Union[str, List[str]]) -> List[int]:
+            if isinstance(inp, str):
+                return self.encode(inp)
+            elif isinstance(inp, (list, tuple)):
+                return self.convert_tokens_to_ids(inp)
+            else:
+                raise ValueError('input should be a string or a list of strings')
+
+        ids = get_input_ids(text)
+        pair_ids = get_input_ids(text_pair) if text_pair is not None else None
+
+        cls_token_id = getattr(self, 'cls_token_id')
+        sep_token_id = getattr(self, 'sep_token_id')
+
+        if pair_ids is not None:
+            # [CLS] A [SEP] B [SEP]
+            input_ids = [cls_token_id] + ids + [sep_token_id] + pair_ids + [sep_token_id]
+            token_type_ids = [0] * (len(ids) + 2) + [1] * (len(pair_ids) + 1)
+            special_tokens_mask = [1] + [0] * len(ids) + [1] + [0] * len(pair_ids) + [1]
+        else:
+            # [CLS] X [SEP]
+            input_ids = [cls_token_id] + ids + [sep_token_id]
+            token_type_ids = [0] * (len(ids) + 2)
+            special_tokens_mask = [1] + [0] * len(ids) + [1]
+
+        return {
+            'input_ids': input_ids,
+            'token_type_ids': token_type_ids,
+            'special_tokens_mask': special_tokens_mask,
+        }
 
 
 class BasicTokenizer(object):

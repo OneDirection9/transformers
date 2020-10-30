@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import logging
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 __all__ = ['BaseTokenizer']
 
@@ -168,3 +168,26 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         tokens = self.convert_ids_to_tokens(ids)
         text = self.convert_tokens_to_string(tokens)
         return text
+
+    @abstractmethod
+    def __call__(
+        self,
+        text: Union[str, List[str]],
+        text_pair: Optional[Union[str, List[str]]] = None,
+    ) -> Dict[str, Any]:
+        """Tokenize and prepare for the model a sequence or a pair of sequences.
+
+        Args:
+            text: The first sequence to be encoded. This can be string or a list of strings
+                (tokenized string using the :meth:`tokenize`).
+            text_pair: The second sequence to be encoded. This can be a string or a list of strings
+                (tokenized string using the :meth:`tokenize`).
+
+        Returns:
+            Dict[str, Any]: A dictionary with following fields:
+                - **input_ids**: List of token ids to be fed to a model.
+                - **token_type_ids**: List of token type ids to be fed to a model.
+                - **special_tokens_mask**: List of 0s and 1s, with 1 specifying added special tokens
+                  and 0 specifying regular sequence tokens.
+        """
+        pass
