@@ -80,12 +80,6 @@ class BertTokenizer(BaseTokenizer):
         self.basic_tokenizer = BasicTokenizer(do_lower_case, tokenize_chinese_chars)
         self.wordpiece_tokenizer = WordpieceTokenizer(self._vocab, unk_token)
 
-        self.unk_token_id = self.convert_tokens_to_ids(unk_token)
-        self.sep_token_id = self.convert_tokens_to_ids(sep_token)
-        self.pad_token_id = self.convert_tokens_to_ids(pad_token)
-        self.cls_token_id = self.convert_tokens_to_ids(cls_token)
-        self.mask_token_id = self.convert_tokens_to_ids(mask_token)
-
     def tokenize(self, text: str) -> List[str]:
         """Converts a string in a sequence of tokens, using the tokenizer."""
         split_tokens = []
