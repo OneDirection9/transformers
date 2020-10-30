@@ -169,19 +169,33 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         text = self.convert_tokens_to_string(tokens)
         return text
 
+    def get_input_ids(self, text: Union[str, List[str], List[int]]) -> List[int]:
+        if isinstance(text, str):
+            return self.encode(text)
+        elif isinstance(text, (list, tuple)) and len(text) > 0 and isinstance(text[0], str):
+            return self.convert_tokens_to_ids(text)
+        elif isinstance(text, (list, tuple)) and len(text) > 0 and isinstance(text[0], int):
+            return text
+        else:
+            raise ValueError(
+                f'Expect a string, a list/tuple of strings or a list/tuple of integers. Got {text}'
+            )
+
     @abstractmethod
     def __call__(
         self,
-        text: Union[str, List[str]],
-        text_pair: Optional[Union[str, List[str]]] = None,
+        text: Union[str, List[str], List[int]],
+        text_pair: Optional[Union[str, List[str], List[int]]] = None,
     ) -> Dict[str, Any]:
         """Tokenize and prepare for the model a sequence or a pair of sequences.
 
         Args:
-            text: The first sequence to be encoded. This can be string or a list of strings
-                (tokenized string using the :meth:`tokenize`).
-            text_pair: The second sequence to be encoded. This can be a string or a list of strings
-                (tokenized string using the :meth:`tokenize`).
+            text: The first sequence to be encoded. This can be string, a list of strings (tokenized
+                string using the :meth:`tokenize`) or a list of integers (tokenized string ids
+                using the :meth:`convert_tokens_to_ids`)
+            text_pair: The second sequence to be encoded. This can be a string, a list of strings
+                (tokenized string using the :meth:`tokenize`) or a list of integers (tokenized
+                string ids using the :meth:`convert_tokens_to_ids`).
 
         Returns:
             Dict[str, Any]: A dictionary with following fields:

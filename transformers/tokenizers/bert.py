@@ -93,20 +93,11 @@ class BertTokenizer(BaseTokenizer):
 
     def __call__(
         self,
-        text: Union[str, List[str]],
-        text_pair: Optional[Union[str, List[str]]] = None,
+        text: Union[str, List[str], List[int]],
+        text_pair: Optional[Union[str, List[str], List[int]]] = None,
     ) -> Dict[str, Any]:
-
-        def get_input_ids(inp: Union[str, List[str]]) -> List[int]:
-            if isinstance(inp, str):
-                return self.encode(inp)
-            elif isinstance(inp, (list, tuple)):
-                return self.convert_tokens_to_ids(inp)
-            else:
-                raise ValueError('input should be a string or a list of strings')
-
-        ids = get_input_ids(text)
-        pair_ids = get_input_ids(text_pair) if text_pair is not None else None
+        ids = self.get_input_ids(text)
+        pair_ids = self.get_input_ids(text_pair) if text_pair is not None else None
 
         cls_token_id = getattr(self, 'cls_token_id')
         sep_token_id = getattr(self, 'sep_token_id')
