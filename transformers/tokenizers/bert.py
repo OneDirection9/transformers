@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import logging
 import unicodedata
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from .base import BaseTokenizer
 from .utils import is_control, is_punctuation, is_whitespace
@@ -91,11 +91,11 @@ class BertTokenizer(BaseTokenizer):
     def convert_tokens_to_string(self, tokens: List[str]) -> str:
         return ' '.join(tokens).replace(' ##', '').strip()
 
-    def __call__(
-        self,
-        ids: Union[str, List[str], List[int]],
-        pair_ids: Optional[Union[str, List[str], List[int]]] = None,
-    ) -> Dict[str, Any]:
+    def num_special_tokens_to_add(self, pair: bool = False) -> int:
+        # [CLS] A [SEP] B [SEP] or [CLS] X [SEP]
+        return 3 if pair else 2
+
+    def __call__(self, ids: List[int], pair_ids: Optional[List[int]] = None) -> Dict[str, Any]:
         cls_token_id = getattr(self, 'cls_token_id')
         sep_token_id = getattr(self, 'sep_token_id')
 
