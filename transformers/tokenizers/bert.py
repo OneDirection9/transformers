@@ -93,12 +93,9 @@ class BertTokenizer(BaseTokenizer):
 
     def __call__(
         self,
-        text: Union[str, List[str], List[int]],
-        text_pair: Optional[Union[str, List[str], List[int]]] = None,
+        ids: Union[str, List[str], List[int]],
+        pair_ids: Optional[Union[str, List[str], List[int]]] = None,
     ) -> Dict[str, Any]:
-        ids = self.get_input_ids(text)
-        pair_ids = self.get_input_ids(text_pair) if text_pair is not None else None
-
         cls_token_id = getattr(self, 'cls_token_id')
         sep_token_id = getattr(self, 'sep_token_id')
 

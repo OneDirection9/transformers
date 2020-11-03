@@ -79,12 +79,6 @@ class BaseTokenizer(object, metaclass=ABCMeta):
 
         return len(tokens_to_add)
 
-    def save(self, path: str) -> None:
-        """Saves vocabulary to the file."""
-        # Keep the same order that the converted ids are consistent
-        with open(path, 'w') as f:
-            f.write('\n'.join(self._vocab.keys()))
-
     @property
     def special_tokens_map(self) -> Dict[str, str]:
         """
@@ -169,33 +163,31 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         text = self.convert_tokens_to_string(tokens)
         return text
 
-    def get_input_ids(self, text: Union[str, List[str], List[int]]) -> List[int]:
-        if isinstance(text, str):
-            return self.encode(text)
-        elif isinstance(text, (list, tuple)) and len(text) > 0 and isinstance(text[0], str):
-            return self.convert_tokens_to_ids(text)
-        elif isinstance(text, (list, tuple)) and len(text) > 0 and isinstance(text[0], int):
-            return text
-        else:
-            raise ValueError(
-                f'Expect a string, a list/tuple of strings or a list/tuple of integers. Got {text}'
-            )
+    def save(self, path: str) -> None:
+        """Saves vocabulary to the file."""
+        # Keep the same order that the converted ids are consistent
+        with open(path, 'w') as f:
+            f.write('\n'.join(self._vocab.keys()))
 
     @abstractmethod
-    def __call__(
-        self,
-        text: Union[str, List[str], List[int]],
-        text_pair: Optional[Union[str, List[str], List[int]]] = None,
-    ) -> Dict[str, Any]:
-        """Tokenize and prepare for the model a sequence or a pair of sequences.
+    def num_special_tokens_to_add(self, pair: bool = False) -> int:
+        """Returns the number of added tokens when preparing a sequence with special tokens.
 
         Args:
-            text: The first sequence to be encoded. This can be string, a list of strings (tokenized
-                string using the :meth:`tokenize`) or a list of integers (tokenized string ids
-                using the :meth:`convert_tokens_to_ids`)
-            text_pair: The second sequence to be encoded. This can be a string, a list of strings
-                (tokenized string using the :meth:`tokenize`) or a list of integers (tokenized
-                string ids using the :meth:`convert_tokens_to_ids`).
+            pair: Whether the number of added tokens should be computed in the case of a sequence
+                pair or a single sequence.
+        """
+        pass
+
+    @abstractmethod
+    def __call__(self, ids: List[int], pair_ids: Optional[List[int]] = None) -> Dict[str, Any]:
+        """Prepare for the model a sequence or a pair of sequences.
+
+        Args:
+            ids: The first sequence to be encoded. This should be a list of integers (tokenized
+                string ids using the :meth:`convert_tokens_to_ids`)
+            pair_ids: The second sequence to be encoded. This should be a list of integers
+                (tokenized string ids using the :meth:`convert_tokens_to_ids`).
 
         Returns:
             Dict[str, Any]: A dictionary with following fields:
@@ -203,5 +195,8 @@ class BaseTokenizer(object, metaclass=ABCMeta):
                 - **token_type_ids**: List of token type ids to be fed to a model.
                 - **special_tokens_mask**: List of 0s and 1s, with 1 specifying added special tokens
                   and 0 specifying regular sequence tokens.
+
+        Notes:
+            Usually the input arguments should be truncated and shouldn't have special tokens.
         """
         pass
