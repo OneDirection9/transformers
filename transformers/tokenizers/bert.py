@@ -99,22 +99,36 @@ class BertTokenizer(BaseTokenizer):
         return ' '.join(tokens).replace(' ##', '').strip()
 
     def num_special_tokens_to_add(self, pair: bool = False) -> int:
-        # [CLS] A [SEP] B [SEP] or [CLS] X [SEP]
+        # pair of sequences: [CLS] A [SEP] B [SEP]
+        # single sequence: [CLS] X [SEP]
         return 3 if pair else 2
 
     def __call__(self, ids: List[int], pair_ids: Optional[List[int]] = None) -> Dict[str, Any]:
         cls_id = self.cls_token_id
         sep_id = self.sep_token_id
 
+        # build input_ids
         if pair_ids is not None:
             # [CLS] A [SEP] B [SEP]
             input_ids = [cls_id] + ids + [sep_id] + pair_ids + [sep_id]
-            token_type_ids = [0] * (len(ids) + 2) + [1] * (len(pair_ids) + 1)
-            special_tokens_mask = [1] + [0] * len(ids) + [1] + [0] * len(pair_ids) + [1]
         else:
             # [CLS] X [SEP]
             input_ids = [cls_id] + ids + [sep_id]
+
+        # create token type ids
+        # 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1
+        # | first sequence    | second sequence |
+        if pair_ids is not None:
+            token_type_ids = [0] * (len(ids) + 2) + [1] * (len(pair_ids) + 1)
+        else:
             token_type_ids = [0] * (len(ids) + 2)
+
+        # get special tokens mask
+        if pair_ids is not None:
+            # [CLS] A [SEP] B [SEP]
+            special_tokens_mask = [1] + [0] * len(ids) + [1] + [0] * len(pair_ids) + [1]
+        else:
+            # [CLS] X [SEP]
             special_tokens_mask = [1] + [0] * len(ids) + [1]
 
         return {
