@@ -41,12 +41,6 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         if num_added_tokens > 0:
             logger.info(f'{num_added_tokens} new token(s) are added to the vocabulary')
 
-        # Add special tokens ids attributes when missing
-        for attr, attr_value in self.special_tokens_map.items():
-            id_attr = attr + '_id'
-            if not hasattr(self, id_attr):
-                setattr(self, id_attr, self.convert_tokens_to_ids(attr_value))
-
     @property
     def vocab(self) -> Dict[str, int]:
         return self._vocab

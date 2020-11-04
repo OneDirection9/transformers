@@ -77,6 +77,13 @@ class BertTokenizer(BaseTokenizer):
 
         super(BertTokenizer, self).__init__(tokens)
 
+        # add tokens ids manually which is useful for tab-completion in an IDE
+        self.unk_token_id = self.convert_tokens_to_ids(unk_token)
+        self.sep_token_id = self.convert_tokens_to_ids(sep_token)
+        self.pad_token_id = self.convert_tokens_to_ids(pad_token)
+        self.cls_token_id = self.convert_tokens_to_ids(cls_token)
+        self.mask_token_id = self.convert_tokens_to_ids(mask_token)
+
         self.basic_tokenizer = BasicTokenizer(do_lower_case, tokenize_chinese_chars)
         self.wordpiece_tokenizer = WordpieceTokenizer(self._vocab, unk_token)
 
@@ -96,17 +103,17 @@ class BertTokenizer(BaseTokenizer):
         return 3 if pair else 2
 
     def __call__(self, ids: List[int], pair_ids: Optional[List[int]] = None) -> Dict[str, Any]:
-        cls_token_id = getattr(self, 'cls_token_id')
-        sep_token_id = getattr(self, 'sep_token_id')
+        cls_id = self.cls_token_id
+        sep_id = self.sep_token_id
 
         if pair_ids is not None:
             # [CLS] A [SEP] B [SEP]
-            input_ids = [cls_token_id] + ids + [sep_token_id] + pair_ids + [sep_token_id]
+            input_ids = [cls_id] + ids + [sep_id] + pair_ids + [sep_id]
             token_type_ids = [0] * (len(ids) + 2) + [1] * (len(pair_ids) + 1)
             special_tokens_mask = [1] + [0] * len(ids) + [1] + [0] * len(pair_ids) + [1]
         else:
             # [CLS] X [SEP]
-            input_ids = [cls_token_id] + ids + [sep_token_id]
+            input_ids = [cls_id] + ids + [sep_id]
             token_type_ids = [0] * (len(ids) + 2)
             special_tokens_mask = [1] + [0] * len(ids) + [1]
 
