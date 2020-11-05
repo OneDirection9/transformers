@@ -41,6 +41,10 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         if num_added_tokens > 0:
             logger.info(f'{num_added_tokens} new token(s) are added to the vocabulary')
 
+    def __len__(self) -> int:
+        """Returns the number of tokens in the dictionary."""
+        return len(self._vocab)
+
     @property
     def vocab(self) -> Dict[str, int]:
         return self._vocab
@@ -48,30 +52,6 @@ class BaseTokenizer(object, metaclass=ABCMeta):
     @property
     def inv_vocab(self) -> Dict[int, str]:
         return self._inv_vocab
-
-    def __len__(self) -> int:
-        """Returns the number of tokens in the dictionary."""
-        return len(self._vocab)
-
-    def add_tokens(self, new_tokens: List[str]) -> int:
-        """Adds a list of new tokens to the tokenizer class. If the new tokens are not in the
-        vocabulary, they are added to it with indices starting from length of the current
-        vocabulary.
-
-        Returns:
-            int: Number of tokens added to the vocabulary.
-        """
-        tokens_to_add = []
-        for token in new_tokens:
-            if token not in self._vocab:
-                logger.info(f'Adding {token} to the vocabulary')
-                tokens_to_add.append(token)
-        added_vocab = OrderedDict([(tok, len(self) + i) for i, tok in enumerate(tokens_to_add)])
-        added_inv_vocab = OrderedDict([(v, k) for k, v in added_vocab.items()])
-        self._vocab.update(added_vocab)
-        self._inv_vocab.update(added_inv_vocab)
-
-        return len(tokens_to_add)
 
     @property
     def special_tokens_map(self) -> Dict[str, str]:
@@ -110,10 +90,25 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         all_ids = self.convert_tokens_to_ids(all_toks)
         return all_ids
 
-    @abstractmethod
-    def tokenize(self, text: str) -> List[str]:
-        """Tokenizes text into list of tokens"""
-        pass
+    def add_tokens(self, new_tokens: List[str]) -> int:
+        """Adds a list of new tokens to the tokenizer class. If the new tokens are not in the
+        vocabulary, they are added to it with indices starting from length of the current
+        vocabulary.
+
+        Returns:
+            int: Number of tokens added to the vocabulary.
+        """
+        tokens_to_add = []
+        for token in new_tokens:
+            if token not in self._vocab:
+                logger.info(f'Adding {token} to the vocabulary')
+                tokens_to_add.append(token)
+        added_vocab = OrderedDict([(tok, len(self) + i) for i, tok in enumerate(tokens_to_add)])
+        added_inv_vocab = OrderedDict([(v, k) for k, v in added_vocab.items()])
+        self._vocab.update(added_vocab)
+        self._inv_vocab.update(added_inv_vocab)
+
+        return len(tokens_to_add)
 
     def convert_tokens_to_ids(self, tokens: Union[str, List[str]]) -> Union[int, List[int]]:
         """Converts a token or a sequence of tokens in a single index or a sequence of indices,
@@ -138,6 +133,11 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         tokenization artifacts at the same time.
         """
         return ' '.join(tokens)
+
+    @abstractmethod
+    def tokenize(self, text: str) -> List[str]:
+        """Tokenizes text into list of tokens"""
+        pass
 
     def encode(self, text: str) -> List[int]:
         """Encodes a sequence.
