@@ -4,6 +4,8 @@ import logging
 import unicodedata
 from typing import Any, Dict, List, Optional
 
+from foundation.common.file_io import PathManager
+
 from .base import BaseTokenizer
 from .utils import is_control, is_punctuation, is_whitespace
 
@@ -65,6 +67,7 @@ class BertTokenizer(BaseTokenizer):
                 model with masked language modeling. This is the token which the model will try to
                 predict.
         """
+        vocab_file = PathManager.get_local_path(vocab_file)
         with open(vocab_file, 'r', encoding='utf-8') as f:
             tokens = f.readlines()
         tokens = [tok.rstrip('\n') for tok in tokens]
