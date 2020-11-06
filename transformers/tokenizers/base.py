@@ -28,8 +28,8 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         """Initializes tokenizer by list of tokens."""
         assert len(tokens) == len(set(tokens)), 'There are some words appear more than once'
 
-        self._vocab = OrderedDict([(k, v) for v, k in enumerate(tokens)])
-        self._inv_vocab = OrderedDict([(v, k) for v, k in enumerate(tokens)])
+        self._vocab: Dict[str, int] = OrderedDict([(k, v) for v, k in enumerate(tokens)])
+        self._inv_vocab: Dict[int, str] = OrderedDict([(v, k) for v, k in enumerate(tokens)])
 
         # Check special tokens' attributes
         for attr in self.SPECIAL_TOKENS_ATTRIBUTES:
@@ -180,8 +180,8 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         """Returns the number of added tokens when preparing a sequence with special tokens.
 
         Args:
-            pair: Whether the number of added tokens should be computed in the case of a sequence
-                pair or a single sequence.
+            pair (bool): Whether the number of added tokens should be computed in the case of a
+                sequence pair or a single sequence.
         """
         pass
 
@@ -190,10 +190,10 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         """Prepare for the model a sequence or a pair of sequences.
 
         Args:
-            ids: The first sequence to be encoded. This should be a list of integers (tokenized
-                string ids using the :meth:`convert_tokens_to_ids`)
-            pair_ids: The second sequence to be encoded. This should be a list of integers
-                (tokenized string ids using the :meth:`convert_tokens_to_ids`).
+            ids (List[int]): The first sequence to be encoded. This should be a list of integers
+                (tokenized string ids using the :meth:`convert_tokens_to_ids`)
+            pair_ids (List[int], optional): The second sequence to be encoded. This should be a list
+                of integers (tokenized string ids using the :meth:`convert_tokens_to_ids`).
 
         Returns:
             Dict[str, Any]: A dictionary with following fields:

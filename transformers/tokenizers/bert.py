@@ -47,25 +47,25 @@ class BertTokenizer(BaseTokenizer):
     ) -> None:
         """
         Args:
-            vocab_file: File containing vocabulary.
-            do_lower_case: Whether to lowercase the input when tokenizing.
-            tokenize_chinese_chars: Whether to tokenize Chinese characters.
+            vocab_file (str): File containing vocabulary.
+            do_lower_case (bool): Whether to lowercase the input when tokenizing.
+            tokenize_chinese_chars (bool): Whether to tokenize Chinese characters.
                 This should likely be deactivated for Japanese, see:
                 https://github.com/huggingface/pytorch-pretrained-BERT/issues/328
-            unk_token: The unknown token. A token that is not in the vocabulary cannot be converted
-                to an ID and is set to be this token instead.
-            sep_token: The separator token, which is used when building a sequence from multiple
-                sequences, e.g. two sequences for sequence classification or for a text and a
-                question for question answering. It is also used as the last token of a sequence
+            unk_token (str): The unknown token. A token that is not in the vocabulary cannot be
+                converted to an ID and is set to be this token instead.
+            sep_token (str): The separator token, which is used when building a sequence from
+                multiple sequences, e.g. two sequences for sequence classification or for a text and
+                a question for question answering. It is also used as the last token of a sequence
                 built with special tokens.
-            pad_token: The token used for padding, for example when batching sequences of different
-                lengths.
-            cls_token: The classifier token which is used when doing sequence classification
+            pad_token (str): The token used for padding, for example when batching sequences of
+                different lengths.
+            cls_token (str): The classifier token which is used when doing sequence classification
                 (classification of the whole sequence instead of per-token classification). It is
                 the first token of the sequence when built with special tokens.
-            mask_token: The token used for masking values. This is the token used when training this
-                model with masked language modeling. This is the token which the model will try to
-                predict.
+            mask_token (str): The token used for masking values. This is the token used when
+                training this model with masked language modeling. This is the token which the model
+                will try to predict.
         """
         vocab_file = PathManager.get_local_path(vocab_file)
         with open(vocab_file, 'r', encoding='utf-8') as f:
@@ -147,8 +147,8 @@ class BasicTokenizer(object):
     def __init__(self, do_lower_case: bool = True, tokenize_chinese_chars: bool = True) -> None:
         """
         Args:
-            do_lower_case: See :class:`BertTokenizer`.
-            tokenize_chinese_chars: See :class:`BertTokenizer`.
+            do_lower_case (bool): See :class:`BertTokenizer`.
+            tokenize_chinese_chars (bool): See :class:`BertTokenizer`.
         """
         self.do_lower_case = do_lower_case
         self.tokenize_chinese_chars = tokenize_chinese_chars
@@ -156,7 +156,7 @@ class BasicTokenizer(object):
     def tokenize(self, text: str) -> List[str]:
         """Basic Tokenization of a piece of text.
 
-        Split on "white spaces" only, for sub-word tokenization, see WordpieceTokenizer.
+        Split on "white spaces" only, for sub-word tokenization, see :class:`WordpieceTokenizer`.
         """
         text = self._clean_text(text)
 
@@ -277,11 +277,11 @@ class WordpieceTokenizer(object):
         vocabulary.
 
         Args:
-            text: A single token or whitespace separated tokens. This should have already been
+            text (str): A single token or whitespace separated tokens. This should have already been
                 passed through `BasicTokenizer`.
 
         Returns:
-            A list of wordpiece tokens.
+            List[str]: A list of wordpiece tokens.
 
         Examples:
             input = "unaffable"

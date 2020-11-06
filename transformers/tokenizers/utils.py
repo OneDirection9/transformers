@@ -1,11 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
-import logging
 import unicodedata
 
 __all__ = ['is_whitespace', 'is_control', 'is_punctuation']
-
-logger = logging.getLogger(__name__)
 
 
 def is_whitespace(char: str) -> bool:
