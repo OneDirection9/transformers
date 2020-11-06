@@ -163,6 +163,18 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         with open(path, 'w') as f:
             f.write('\n'.join(self._vocab.keys()))
 
+    def __repr__(self) -> str:
+        """Produces something like:
+        MyTokenizer(sep_token='[SEP]', ..., total_number_of_tokens=10000)
+        """
+        token_str = []
+        for attr, attr_value in self.special_tokens_map.items():
+            token_str.append("{}='{}'".format(attr, attr_value))
+        token_str.append('total_number_of_tokens={}'.format(len(self)))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(token_str))
+
+    __str__ = __repr__
+
     @abstractmethod
     def num_special_tokens_to_add(self, pair: bool = False) -> int:
         """Returns the number of added tokens when preparing a sequence with special tokens.
