@@ -32,9 +32,9 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         self._inv_vocab: Dict[int, str] = OrderedDict([(v, k) for v, k in enumerate(tokens)])
 
         # Check special tokens' attributes
-        for attr in self.SPECIAL_TOKENS_ATTRIBUTES:
-            if not hasattr(self, attr):
-                raise AttributeError(f"{self.__class__.__name__} does't have attribute {attr}")
+        for name in self.SPECIAL_TOKENS_ATTRIBUTES:
+            if not hasattr(self, name):
+                raise AttributeError(f"{self.__class__.__name__} does't have attribute {name}")
 
         # Add special tokens to vocabulary when missing
         num_added_tokens = self.add_tokens(self.all_special_tokens)
@@ -60,11 +60,11 @@ class BaseTokenizer(object, metaclass=ABCMeta):
             Dict[str, str]: A dictionary mapping special token class attributes (:obj:`cls_token`,
                 :obj:`unk_token`, etc.) to their values (:obj:`'<unk>'`, :obj:`'<cls>'`, etc.).
         """
-        set_attr = {}
-        for attr in self.SPECIAL_TOKENS_ATTRIBUTES:
-            attr_value = getattr(self, attr)
-            set_attr[attr] = attr_value
-        return set_attr
+        name_to_tok = {}
+        for name in self.SPECIAL_TOKENS_ATTRIBUTES:
+            toks = getattr(self, name)
+            name_to_tok[name] = toks
+        return name_to_tok
 
     @property
     def all_special_tokens(self) -> List[str]:
@@ -74,9 +74,9 @@ class BaseTokenizer(object, metaclass=ABCMeta):
                 attributes.
         """
         all_toks = []
-        set_attr = self.special_tokens_map
-        for attr_value in set_attr.values():
-            all_toks.append(attr_value)
+        name_to_tok = self.special_tokens_map
+        for tok in name_to_tok.values():
+            all_toks.append(tok)
         return all_toks
 
     @property
@@ -164,12 +164,13 @@ class BaseTokenizer(object, metaclass=ABCMeta):
             f.write('\n'.join(self._vocab.keys()))
 
     def __repr__(self) -> str:
-        """Produces something like:
-        MyTokenizer(sep_token='[SEP]', ..., num_tokens=10000)
+        """
+        Produce something like:
+        "MyTokenizer(sep_token='[SEP]', ..., num_tokens=10000)"
         """
         token_str = []
-        for attr, attr_value in self.special_tokens_map.items():
-            token_str.append("{}='{}'".format(attr, attr_value))
+        for name, tok in self.special_tokens_map.items():
+            token_str.append("{}='{}'".format(name, tok))
         token_str.append('num_tokens={}'.format(len(self)))
         return '{}({})'.format(self.__class__.__name__, ', '.join(token_str))
 
