@@ -2,22 +2,25 @@ from __future__ import absolute_import, division, print_function
 
 import inspect
 import pprint
-
-from torch.utils.data import Dataset
+from abc import ABCMeta, abstractmethod
+from typing import List
 
 from transformers.tokenizers import BaseTokenizer
 
 __all__ = ['BaseSeqDataset']
 
 
-class BaseSeqDataset(Dataset):
+class BaseSeqDataset(object, metaclass=ABCMeta):
     """Base sequence dataset.
 
-    It contains the following extra features:
+    This is not a typical PyTorch dataset and is worked like a producer.
+
+    It contains the following features:
 
     1. The :attr:`tokenizer` which is needed for processing sequence. See
        :mod:`transformers.tokenizers` for more details.
     2. The re-implemented :meth:`__repr__` producing nicely descriptions of the dataset.
+    3. Using :meth:`get_items` to produce list of examples.
 
     Args:
         tokenizer (BaseTokenizer):
@@ -30,11 +33,9 @@ class BaseSeqDataset(Dataset):
     def tokenizer(self) -> BaseTokenizer:
         return self._tokenizer
 
-    def __getitem__(self, index: int):
-        raise NotImplementedError
-
-    def __len__(self) -> int:
-        raise NotImplementedError
+    @abstractmethod
+    def get_items(self) -> List[dict]:
+        pass
 
     def __repr__(self) -> str:
         """

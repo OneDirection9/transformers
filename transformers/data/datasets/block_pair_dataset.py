@@ -7,11 +7,13 @@ from typing import List, Tuple
 import numpy as np
 
 from transformers.tokenizers import BaseTokenizer
+from ..build import DATASET_REGISTRY
 from .base import BaseSeqDataset
 
 __all__ = ['TextDatasetForNextSentencePrediction']
 
 
+@DATASET_REGISTRY.register('TextDatasetForNSP')
 class TextDatasetForNextSentencePrediction(BaseSeqDataset):
     """
     Loads the documents from wiki directory and breaks them into sentence pair blocks for next
@@ -40,10 +42,11 @@ class TextDatasetForNextSentencePrediction(BaseSeqDataset):
         self.short_seq_probability = short_seq_probability
         self.nsp_probability = nsp_probability
 
-        self.documents = []
+    def get_items(self) -> List[dict]:
+        documents = []
         # file path looks like: root/wiki_0, root/wiki_1
-        for file_name in os.listdir(root):
-            with open(osp.join(root, file_name), 'r', encoding='utf-8') as f:
+        for file_name in os.listdir(self.root):
+            with open(osp.join(self.root, file_name), 'r', encoding='utf-8') as f:
                 original_lines = f.readlines()
 
             article_lines = []
@@ -55,23 +58,27 @@ class TextDatasetForNextSentencePrediction(BaseSeqDataset):
                 elif '</doc>' in line:
                     article_open = False
                     # ignore the first line since it is the title
-                    document = [
-                        tokenizer.encode(line) for line in article_lines[1:]
+                    cur_doc = [
+                        self.tokenizer.encode(line) for line in article_lines[1:]
                         if len(line) > 0 and not line.isspace()
                     ]
-                    self.documents.append(document)
+                    documents.append(cur_doc)
                     article_lines = []
                 else:
                     if article_open:
                         article_lines.append(line)
 
-        self.examples = []
-        for doc_id, doc in enumerate(self.documents):
-            self.examples.extend(self._generate_sentence_pairs(doc, doc_id))
+        items = []
+        for doc_id, doc in enumerate(documents):
+            items.extend(self._generate_sentence_pairs(documents, doc, doc_id))
 
-    def _generate_sentence_pairs(self, doc: List[List[int]], doc_id: int) -> List[dict]:
+        return items
+
+    def _generate_sentence_pairs(
+        self, documents: List[List[List[int]]], doc: List[List[int]], doc_id: int
+    ) -> List[dict]:
         """Go through a single document and generate sentence pairs from it."""
-        examples = []
+        items = []
 
         # Account for special tokens
         max_num_tokens = self.block_size - self.tokenizer.num_special_tokens_to_add(pair=True)
@@ -115,8 +122,8 @@ class TextDatasetForNextSentencePrediction(BaseSeqDataset):
                 if next_sent_label == 0:
                     # if next sentence label is 0, sample sent_b from a random doc
                     target_b_length = target_seq_length - len(sent_a)
-                    rand_doc_id = self._skip_sampling(len(self.documents), [doc_id])
-                    rand_doc = self.documents[rand_doc_id]
+                    rand_doc_id = self._skip_sampling(len(documents), [doc_id])
+                    rand_doc = documents[rand_doc_id]
                     rand_start = np.random.randint(0, len(rand_doc))
                     for j in range(rand_start, len(rand_doc)):
                         sent_b.extend(rand_doc[j])
@@ -136,16 +143,16 @@ class TextDatasetForNextSentencePrediction(BaseSeqDataset):
                 # currently sent_a and sent_b maybe longer than max_num_tokens, truncate them
                 sent_a, sent_b = self._truncate_sequence(sent_a, sent_b, max_num_tokens)
 
-                example = {
+                item = {
                     **self.tokenizer(sent_a, sent_b),
                     'next_sent_label': next_sent_label,
                 }
-                examples.append(example)
+                items.append(item)
 
                 current_chunk = []
                 current_length = 0
             i += 1
-        return examples
+        return items
 
     def _skip_sampling(self, high: int, block_list: List[int]) -> int:
         """Generate a random integer which in not in `block_list`. Sample range is [0, `high`). """
@@ -153,8 +160,9 @@ class TextDatasetForNextSentencePrediction(BaseSeqDataset):
         total = [x for x in range(high) if x not in blocked]
         return np.random.choice(total)
 
-    def _truncate_sequence(self, sent_a: List[int], sent_b: List[int],
-                           max_num_tokens: int) -> Tuple[List[int], List[int]]:
+    def _truncate_sequence(
+        self, sent_a: List[int], sent_b: List[int], max_num_tokens: int
+    ) -> Tuple[List[int], List[int]]:  # yapf: disable
         """Truncates a pair of sentence to limit total length under `max_num_tokens`.
 
         Logics:
@@ -184,9 +192,3 @@ class TextDatasetForNextSentencePrediction(BaseSeqDataset):
         truncated_sent_a = sent_a[front_cut_a:len_a - end_cut_a]
         truncated_sent_b = sent_b[front_cut_b:len_b - end_cut_b]
         return truncated_sent_a, truncated_sent_b
-
-    def __getitem__(self, index: int):
-        return self.examples[index]
-
-    def __len__(self) -> int:
-        return len(self.examples)
