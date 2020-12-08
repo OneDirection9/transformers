@@ -5,14 +5,15 @@ from typing import List, Optional, Union
 
 import torch
 
-__all__ = ['PaddingStrategy', 'batch_pad_sequence']
+__all__ = ["PaddingStrategy", "batch_pad_sequence"]
 
 
 class PaddingStrategy(Enum):
     """Possible values for the padding."""
-    LONGEST = 'longest'
-    MAX_LENGTH = 'max_length'
-    DO_NOT_PAD = 'do_not_pad'
+
+    LONGEST = "longest"
+    MAX_LENGTH = "max_length"
+    DO_NOT_PAD = "do_not_pad"
 
 
 def batch_pad_sequence(
@@ -20,7 +21,7 @@ def batch_pad_sequence(
     padding_value: int,
     max_length: Optional[int] = None,
     padding_strategy: Union[str, PaddingStrategy] = PaddingStrategy.DO_NOT_PAD,
-    padding_side: str = 'right',
+    padding_side: str = "right",
     pad_to_multiple_of: Optional[int] = None,
 ) -> Union[List[torch.Tensor], torch.Tensor]:
     """Pads a batch of encoded inputs up to predefined length or to the max sequence length.
@@ -62,10 +63,10 @@ def batch_pad_sequence(
     padded_ids = batch_ids[0].new_full((len(batch_ids), max_length), padding_value)
 
     for i, ids in enumerate(batch_ids):
-        if padding_side == 'left':
-            dst = padded_ids[i][max_length - len(ids):]
-        elif padding_side == 'right':
-            dst = padded_ids[i][:len(ids)]
+        if padding_side == "left":
+            dst = padded_ids[i][max_length - len(ids) :]
+        elif padding_side == "right":
+            dst = padded_ids[i][: len(ids)]
         else:
             raise ValueError(f"padding_side should be either 'left' or 'right'. Got {padding_side}")
         dst.copy_(ids)

@@ -6,7 +6,7 @@ from typing import Callable
 
 from foundation.common.config import CfgNode as _CfgNode
 
-__all__ = ['CfgNode', 'get_cfg', 'configurable']
+__all__ = ["CfgNode", "get_cfg", "configurable"]
 
 
 class CfgNode(_CfgNode):
@@ -29,8 +29,8 @@ def get_cfg() -> CfgNode:
     return _C.clone()
 
 
-FROM_CONFIG_FUNC_NAME = 'from_config'
-CFG_ARG_NAME = 'cfg'
+FROM_CONFIG_FUNC_NAME = "from_config"
+CFG_ARG_NAME = "cfg"
 
 
 def configurable(init_func: Callable) -> Callable:
@@ -59,8 +59,9 @@ def configurable(init_func: Callable) -> Callable:
         init_func (callable): A class's ``__init__`` method. The class must have a ``from_config``
             classmethod which takes `cfg` as the first argument.
     """
-    assert inspect.isfunction(init_func) and init_func.__name__ == '__init__', \
-        'Incorrect use of @configurable. Check API documentation for examples.'
+    assert (
+        inspect.isfunction(init_func) and init_func.__name__ == "__init__"
+    ), "Incorrect use of @configurable. Check API documentation for examples."
 
     @functools.wraps(init_func)
     def wrapped(self, *args, **kwargs):
@@ -79,7 +80,7 @@ def configurable(init_func: Callable) -> Callable:
         signature = inspect.signature(from_config_func)
         if list(signature.parameters.keys())[0] != CFG_ARG_NAME:
             raise TypeError(
-                f'{from_config_func.__self__.__name__}.{from_config_func.__name__} '
+                f"{from_config_func.__self__.__name__}.{from_config_func.__name__} "
                 f"must take '{CFG_ARG_NAME}' as the first argument!"
             )
 
@@ -87,8 +88,8 @@ def configurable(init_func: Callable) -> Callable:
             explicit_args = from_config_func(*args, **kwargs)
             if not isinstance(explicit_args, dict):
                 raise ValueError(
-                    f'{from_config_func.__self__.__name__}.{from_config_func.__name__} '
-                    f'must return a dictionary'
+                    f"{from_config_func.__self__.__name__}.{from_config_func.__name__} "
+                    f"must return a dictionary"
                 )
             init_func(self, **explicit_args)
         else:

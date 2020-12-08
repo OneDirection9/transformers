@@ -7,13 +7,11 @@ from typing import List, Tuple
 import numpy as np
 
 from transformers.tokenizers import BaseTokenizer
-from ..build import DATASET_REGISTRY
 from .base import BaseSeqDataset
 
-__all__ = ['TextDatasetForNextSentencePrediction']
+__all__ = ["TextDatasetForNextSentencePrediction"]
 
 
-@DATASET_REGISTRY.register('TextDatasetForNSP')
 class TextDatasetForNextSentencePrediction(BaseSeqDataset):
     """
     Loads the documents from wiki directory and breaks them into sentence pair blocks for next
@@ -46,20 +44,21 @@ class TextDatasetForNextSentencePrediction(BaseSeqDataset):
         documents = []
         # file path looks like: root/wiki_0, root/wiki_1
         for file_name in os.listdir(self.root):
-            with open(osp.join(self.root, file_name), 'r', encoding='utf-8') as f:
+            with open(osp.join(self.root, file_name), "r", encoding="utf-8") as f:
                 original_lines = f.readlines()
 
             article_lines = []
             article_open = False
             for line in original_lines:
                 line = line.strip()
-                if '<doc id=' in line:
+                if "<doc id=" in line:
                     article_open = True
-                elif '</doc>' in line:
+                elif "</doc>" in line:
                     article_open = False
                     # ignore the first line since it is the title
                     cur_doc = [
-                        self.tokenizer.encode(line) for line in article_lines[1:]
+                        self.tokenizer.encode(line)
+                        for line in article_lines[1:]
                         if len(line) > 0 and not line.isspace()
                     ]
                     documents.append(cur_doc)
@@ -145,7 +144,7 @@ class TextDatasetForNextSentencePrediction(BaseSeqDataset):
 
                 item = {
                     **self.tokenizer(sent_a, sent_b),
-                    'next_sent_label': next_sent_label,
+                    "next_sent_label": next_sent_label,
                 }
                 items.append(item)
 
@@ -162,7 +161,7 @@ class TextDatasetForNextSentencePrediction(BaseSeqDataset):
 
     def _truncate_sequence(
         self, sent_a: List[int], sent_b: List[int], max_num_tokens: int
-    ) -> Tuple[List[int], List[int]]:  # yapf: disable
+    ) -> Tuple[List[int], List[int]]:
         """Truncates a pair of sentence to limit total length under `max_num_tokens`.
 
         Logics:
@@ -189,6 +188,6 @@ class TextDatasetForNextSentencePrediction(BaseSeqDataset):
                 else:
                     end_cut_b += 1
 
-        truncated_sent_a = sent_a[front_cut_a:len_a - end_cut_a]
-        truncated_sent_b = sent_b[front_cut_b:len_b - end_cut_b]
+        truncated_sent_a = sent_a[front_cut_a : len_a - end_cut_a]
+        truncated_sent_b = sent_b[front_cut_b : len_b - end_cut_b]
         return truncated_sent_a, truncated_sent_b

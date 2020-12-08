@@ -7,13 +7,13 @@ from typing import List
 
 from transformers.tokenizers import BaseTokenizer
 
-__all__ = ['BaseSeqDataset']
+__all__ = ["BaseSeqDataset"]
 
 
 class BaseSeqDataset(object, metaclass=ABCMeta):
     """Base sequence dataset.
 
-    This is not a typical PyTorch dataset and is worked like a producer.
+    This is not a typical PyTorch dataset and it works like a producer.
 
     It contains the following features:
 
@@ -46,19 +46,20 @@ class BaseSeqDataset(object, metaclass=ABCMeta):
             sig = inspect.signature(self.__init__)
             argstr = []
             for name, param in sig.parameters.items():
-                assert param.kind != param.VAR_POSITIONAL and param.kind != param.VAR_KEYWORD, \
-                    "The default __repr__ doesn't support *args and **kwargs"
+                assert (
+                    param.kind != param.VAR_POSITIONAL and param.kind != param.VAR_KEYWORD
+                ), "The default __repr__ doesn't support *args and **kwargs"
                 assert hasattr(self, name), (
-                    'Attribute {} not found! '
-                    'Default __repr__ only works if attributes match the constructor'.format(name)
+                    "Attribute {} not found! "
+                    "Default __repr__ only works if attributes match the constructor".format(name)
                 )
                 attr = getattr(self, name)
                 attr_str = pprint.pformat(attr)
-                if '\n' in attr_str:
+                if "\n" in attr_str:
                     # don't show it if pformat decides to use >1 lines
-                    attr_str = '...'
-                argstr.append('{}={}'.format(name, attr_str))
-            return '{}({})'.format(self.__class__.__name__, ', '.join(argstr))
+                    attr_str = "..."
+                argstr.append("{}={}".format(name, attr_str))
+            return "{}({})".format(self.__class__.__name__, ", ".join(argstr))
         except AssertionError:
             return super().__repr__()
 

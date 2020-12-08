@@ -5,7 +5,7 @@ from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional, Union
 
-__all__ = ['BaseTokenizer']
+__all__ = ["BaseTokenizer"]
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class BaseTokenizer(object, metaclass=ABCMeta):
 
     def __init__(self, tokens: List[str]) -> None:
         """Initializes tokenizer by list of tokens."""
-        assert len(tokens) == len(set(tokens)), 'There are some words appear more than once'
+        assert len(tokens) == len(set(tokens)), "There are some words appear more than once"
 
         self._vocab: Dict[str, int] = OrderedDict([(k, v) for v, k in enumerate(tokens)])
         self._inv_vocab: Dict[int, str] = OrderedDict([(v, k) for v, k in enumerate(tokens)])
@@ -39,7 +39,7 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         # Add special tokens to vocabulary when missing
         num_added_tokens = self.add_tokens(self.all_special_tokens)
         if num_added_tokens > 0:
-            logger.info(f'{num_added_tokens} new token(s) are added to the vocabulary')
+            logger.info(f"{num_added_tokens} new token(s) are added to the vocabulary")
 
     def __len__(self) -> int:
         """Returns the number of tokens in the dictionary."""
@@ -101,7 +101,7 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         tokens_to_add = []
         for token in new_tokens:
             if token not in self._vocab:
-                logger.info(f'Adding {token} to the vocabulary')
+                logger.info(f"Adding {token} to the vocabulary")
                 tokens_to_add.append(token)
         added_vocab = OrderedDict([(tok, len(self) + i) for i, tok in enumerate(tokens_to_add)])
         added_inv_vocab = OrderedDict([(v, k) for k, v in added_vocab.items()])
@@ -132,7 +132,7 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         The most simple way to do it is ``" ".join(tokens)`` but we often want to remove sub-word
         tokenization artifacts at the same time.
         """
-        return ' '.join(tokens)
+        return " ".join(tokens)
 
     @abstractmethod
     def tokenize(self, text: str) -> List[str]:
@@ -160,8 +160,8 @@ class BaseTokenizer(object, metaclass=ABCMeta):
     def save(self, path: str) -> None:
         """Saves vocabulary to the file."""
         # Keep the same order that the converted ids are consistent
-        with open(path, 'w') as f:
-            f.write('\n'.join(self._vocab.keys()))
+        with open(path, "w") as f:
+            f.write("\n".join(self._vocab.keys()))
 
     def __repr__(self) -> str:
         """
@@ -171,8 +171,8 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         token_str = []
         for name, tok in self.special_tokens_map.items():
             token_str.append("{}='{}'".format(name, tok))
-        token_str.append('num_tokens={}'.format(len(self)))
-        return '{}({})'.format(self.__class__.__name__, ', '.join(token_str))
+        token_str.append("num_tokens={}".format(len(self)))
+        return "{}({})".format(self.__class__.__name__, ", ".join(token_str))
 
     __str__ = __repr__
 

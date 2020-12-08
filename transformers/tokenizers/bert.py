@@ -9,7 +9,7 @@ from foundation.common.file_io import PathManager
 from .base import BaseTokenizer
 from .utils import is_control, is_punctuation, is_whitespace
 
-__all__ = ['BertTokenizer', 'BasicTokenizer', 'WordpieceTokenizer']
+__all__ = ["BertTokenizer", "BasicTokenizer", "WordpieceTokenizer"]
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +27,11 @@ class BertTokenizer(BaseTokenizer):
     """A BERT tokenizer based on wordpiece."""
 
     SPECIAL_TOKENS_ATTRIBUTES = [
-        'unk_token',
-        'sep_token',
-        'pad_token',
-        'cls_token',
-        'mask_token',
+        "unk_token",
+        "sep_token",
+        "pad_token",
+        "cls_token",
+        "mask_token",
     ]
 
     def __init__(
@@ -39,11 +39,11 @@ class BertTokenizer(BaseTokenizer):
         vocab_file: str,
         do_lower_case: bool = True,
         tokenize_chinese_chars: bool = True,
-        unk_token: str = '[UNK]',
-        sep_token: str = '[SEP]',
-        pad_token: str = '[PAD]',
-        cls_token: str = '[CLS]',
-        mask_token: str = '[MASK]',
+        unk_token: str = "[UNK]",
+        sep_token: str = "[SEP]",
+        pad_token: str = "[PAD]",
+        cls_token: str = "[CLS]",
+        mask_token: str = "[MASK]",
     ) -> None:
         """
         Args:
@@ -68,9 +68,9 @@ class BertTokenizer(BaseTokenizer):
                 will try to predict.
         """
         vocab_file = PathManager.get_local_path(vocab_file)
-        with open(vocab_file, 'r', encoding='utf-8') as f:
+        with open(vocab_file, "r", encoding="utf-8") as f:
             tokens = f.readlines()
-        tokens = [tok.rstrip('\n') for tok in tokens]
+        tokens = [tok.rstrip("\n") for tok in tokens]
 
         self.unk_token = unk_token
         self.sep_token = sep_token
@@ -99,7 +99,7 @@ class BertTokenizer(BaseTokenizer):
         return split_tokens
 
     def convert_tokens_to_string(self, tokens: List[str]) -> str:
-        return ' '.join(tokens).replace(' ##', '').strip()
+        return " ".join(tokens).replace(" ##", "").strip()
 
     def num_special_tokens_to_add(self, pair: bool = False) -> int:
         # pair of sequences: [CLS] A [SEP] B [SEP]
@@ -135,9 +135,9 @@ class BertTokenizer(BaseTokenizer):
             special_tokens_mask = [1] + [0] * len(ids) + [1]
 
         return {
-            'input_ids': input_ids,
-            'token_type_ids': token_type_ids,
-            'special_tokens_mask': special_tokens_mask,
+            "input_ids": input_ids,
+            "token_type_ids": token_type_ids,
+            "special_tokens_mask": special_tokens_mask,
         }
 
 
@@ -177,19 +177,19 @@ class BasicTokenizer(object):
                 token = self._run_strip_accents(token)
             split_tokens.extend(self._run_split_on_punc(token))
 
-        output_tokens = whitespace_tokenize(' '.join(split_tokens))
+        output_tokens = whitespace_tokenize(" ".join(split_tokens))
         return output_tokens
 
     def _run_strip_accents(self, text: str) -> str:
         """Strips accents from a piece of text."""
-        text = unicodedata.normalize('NFD', text)
+        text = unicodedata.normalize("NFD", text)
         output = []
         for char in text:
             cat = unicodedata.category(char)
-            if cat == 'Mn':
+            if cat == "Mn":
                 continue
             output.append(char)
-        return ''.join(output)
+        return "".join(output)
 
     def _run_split_on_punc(self, text: str) -> List[str]:
         """Splits punctuation on a piece of text."""
@@ -209,7 +209,7 @@ class BasicTokenizer(object):
                 output[-1].append(char)
             i += 1
 
-        return [''.join(x) for x in output]
+        return ["".join(x) for x in output]
 
     def _tokenize_chinese_chars(self, text: str) -> str:
         """Adds whitespace around any CJK character."""
@@ -217,12 +217,12 @@ class BasicTokenizer(object):
         for char in text:
             cp = ord(char)
             if self._is_chinese_char(cp):
-                output.append(' ')
+                output.append(" ")
                 output.append(char)
-                output.append(' ')
+                output.append(" ")
             else:
                 output.append(char)
-        return ''.join(output)
+        return "".join(output)
 
     def _is_chinese_char(self, cp: int) -> bool:
         """Checks whether CP is the codepoint of a CJK character."""
@@ -243,7 +243,7 @@ class BasicTokenizer(object):
             or (0x2B820 <= cp <= 0x2CEAF)
             or (0xF900 <= cp <= 0xFAFF)
             or (0x2F800 <= cp <= 0x2FA1F)
-        ):  # yapf: disable
+        ):
             return True
 
         return False
@@ -256,10 +256,10 @@ class BasicTokenizer(object):
             if cp == 0 or cp == 0xFFFD or is_control(char):
                 continue
             if is_whitespace(char):
-                output.append(' ')
+                output.append(" ")
             else:
                 output.append(char)
-        return ''.join(output)
+        return "".join(output)
 
 
 class WordpieceTokenizer(object):
@@ -301,9 +301,9 @@ class WordpieceTokenizer(object):
                 end = len(chars)
                 cur_substr = None
                 while start < end:
-                    substr = ''.join(chars[start:end])
+                    substr = "".join(chars[start:end])
                     if start > 0:
-                        substr = '##' + substr
+                        substr = "##" + substr
                     if substr in self.vocab:
                         cur_substr = substr
                         break
