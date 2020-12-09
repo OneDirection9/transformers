@@ -7,6 +7,7 @@ from typing import List, Tuple
 import numpy as np
 
 from transformers.tokenizers import BaseTokenizer
+from transformers.utils.file_io import PathManager
 from .base import BaseSeqDataset
 
 __all__ = ["TextDatasetForNextSentencePrediction"]
@@ -44,7 +45,8 @@ class TextDatasetForNextSentencePrediction(BaseSeqDataset):
         documents = []
         # file path looks like: root/wiki_0, root/wiki_1
         for file_name in os.listdir(self.root):
-            with open(osp.join(self.root, file_name), "r", encoding="utf-8") as f:
+            file_path = osp.join(self.root, file_name)
+            with open(PathManager.get_local_path(file_path), "r", encoding="utf-8") as f:
                 original_lines = f.readlines()
 
             article_lines = []
