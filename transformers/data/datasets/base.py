@@ -17,7 +17,7 @@ class BaseSeqDataset(object, metaclass=ABCMeta):
 
     It contains the following features:
 
-    1. The :attr:`tokenizer` which is needed for processing sequence. See
+    1. The :attr:`tokenizer` which is used to process sequence. See
        :mod:`transformers.tokenizers` for more details.
     2. The re-implemented :meth:`__repr__` producing nicely descriptions of the dataset.
     3. Using :meth:`get_items` to produce list of examples.

@@ -19,7 +19,7 @@ class TextDatasetForNextSentencePrediction(BaseSeqDataset):
     sentence prediction as well as masked language model.
 
     Args:
-        root (str): The wiki directory. See :func:`list_wiki_dir` for more details.
+        root (str): The wiki directory.
         block_size (int): Maximum block size.
         tokenizer (BaseTokenizer):
         short_seq_probability (float): Probability for generating shorter block pairs.
