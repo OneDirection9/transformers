@@ -27,11 +27,7 @@ class BaseSeqDataset(object, metaclass=ABCMeta):
     """
 
     def __init__(self, tokenizer: BaseTokenizer):
-        self._tokenizer = tokenizer
-
-    @property
-    def tokenizer(self) -> BaseTokenizer:
-        return self._tokenizer
+        self.tokenizer = tokenizer
 
     @abstractmethod
     def get_items(self) -> List[dict]:

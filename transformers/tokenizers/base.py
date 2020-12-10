@@ -16,6 +16,17 @@ class BaseTokenizer(object, metaclass=ABCMeta):
     This class provides a class attribute :attr:`SPECIAL_TOKENS_ATTRIBUTES` that user can define the
     class attributes related to special tokens, instead of specifying special tokens.
 
+    It contains the following attributes:
+
+        1. :attr:`vocab`: An dictionary mapping tokens to ids.
+        2. :attr:`inv_vocab`: An dictionary mapping ids to tokens.
+        3. :attr:`special_tokens_map`: An dictionary mapping special token class attributes
+           (`cls_token`, `unk_token`, etc.) to their values (`<cls>`, `<unk>`, etc.).
+        4. :attr:`all_special_tokens`: All the special tokens (`<cls>`, `<unk>`, etc.) mapped to
+           class attributes
+        5. :attr:`all_special_tokens_ids`: List the ids of the special tokens
+           (`<cls>`, `<unk>`, etc.) mapped to class attributes.
+
     The inherited classes should handle specific behaviors related to special tokens. In particular,
     those classes hold the attributes which can be used to directly access these special tokens in a
     model-independent manner.
@@ -28,67 +39,29 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         """Initializes tokenizer by list of tokens."""
         assert len(tokens) == len(set(tokens)), "There are some words appear more than once"
 
-        self._vocab: Dict[str, int] = OrderedDict([(k, v) for v, k in enumerate(tokens)])
-        self._inv_vocab: Dict[int, str] = OrderedDict([(v, k) for v, k in enumerate(tokens)])
+        self.vocab: Dict[str, int] = OrderedDict([(k, v) for v, k in enumerate(tokens)])
+        self.inv_vocab: Dict[int, str] = OrderedDict([(v, k) for v, k in enumerate(tokens)])
 
         # Check special tokens' attributes
         for name in self.SPECIAL_TOKENS_ATTRIBUTES:
             if not hasattr(self, name):
                 raise AttributeError(f"{self.__class__.__name__} does't have attribute {name}")
 
+        self.special_tokens_map: Dict[str, str] = {
+            name: getattr(self, name) for name in self.SPECIAL_TOKENS_ATTRIBUTES
+        }
+        self.all_special_tokens: List[str] = list(self.special_tokens_map.values())
+
         # Add special tokens to vocabulary when missing
         num_added_tokens = self.add_tokens(self.all_special_tokens)
         if num_added_tokens > 0:
             logger.info(f"{num_added_tokens} new token(s) are added to the vocabulary")
 
+        self.all_special_tokens_ids: List[int] = self.convert_tokens_to_ids(self.all_special_tokens)
+
     def __len__(self) -> int:
         """Returns the number of tokens in the dictionary."""
-        return len(self._vocab)
-
-    @property
-    def vocab(self) -> Dict[str, int]:
-        return self._vocab
-
-    @property
-    def inv_vocab(self) -> Dict[int, str]:
-        return self._inv_vocab
-
-    @property
-    def special_tokens_map(self) -> Dict[str, str]:
-        """
-        Returns:
-            Dict[str, str]: A dictionary mapping special token class attributes (:obj:`cls_token`,
-                :obj:`unk_token`, etc.) to their values (:obj:`'<unk>'`, :obj:`'<cls>'`, etc.).
-        """
-        name_to_tok = {}
-        for name in self.SPECIAL_TOKENS_ATTRIBUTES:
-            toks = getattr(self, name)
-            name_to_tok[name] = toks
-        return name_to_tok
-
-    @property
-    def all_special_tokens(self) -> List[str]:
-        """
-        Returns:
-            List[str]: All the special tokens (:obj:`'<unk>'`, :obj:`'<cls>'`, etc.) mapped to class
-                attributes.
-        """
-        all_toks = []
-        name_to_tok = self.special_tokens_map
-        for tok in name_to_tok.values():
-            all_toks.append(tok)
-        return all_toks
-
-    @property
-    def all_special_tokens_ids(self) -> List[int]:
-        """
-        Returns:
-            List[int]: List the ids of the special tokens(:obj:`'<unk>'`, :obj:`'<cls>'`, etc.)
-                mapped to class attributes.
-        """
-        all_toks = self.all_special_tokens
-        all_ids = self.convert_tokens_to_ids(all_toks)
-        return all_ids
+        return len(self.vocab)
 
     def add_tokens(self, new_tokens: List[str]) -> int:
         """Adds a list of new tokens to the tokenizer class. If the new tokens are not in the
@@ -100,13 +73,13 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         """
         tokens_to_add = []
         for token in new_tokens:
-            if token not in self._vocab:
+            if token not in self.vocab:
                 logger.info(f"Adding {token} to the vocabulary")
                 tokens_to_add.append(token)
         added_vocab = OrderedDict([(tok, len(self) + i) for i, tok in enumerate(tokens_to_add)])
         added_inv_vocab = OrderedDict([(v, k) for k, v in added_vocab.items()])
-        self._vocab.update(added_vocab)
-        self._inv_vocab.update(added_inv_vocab)
+        self.vocab.update(added_vocab)
+        self.inv_vocab.update(added_inv_vocab)
 
         return len(tokens_to_add)
 
@@ -115,16 +88,16 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         using vocabulary.
         """
         if isinstance(tokens, str):
-            return self._vocab[tokens]
-        return [self._vocab[x] for x in tokens]
+            return self.vocab[tokens]
+        return [self.vocab[x] for x in tokens]
 
     def convert_ids_to_tokens(self, ids: Union[int, List[int]]) -> Union[str, List[str]]:
         """Converts a single index or a sequence of indices in a token or a sequence of tokens,
         using vocabulary.
         """
         if isinstance(ids, int):
-            return self._inv_vocab[ids]
-        return [self._inv_vocab[x] for x in ids]
+            return self.inv_vocab[ids]
+        return [self.inv_vocab[x] for x in ids]
 
     def convert_tokens_to_string(self, tokens: List[str]) -> str:
         """Converts a sequence of tokens in a single string.
@@ -161,7 +134,7 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         """Saves vocabulary to the file."""
         # Keep the same order that the converted ids are consistent
         with open(path, "w") as f:
-            f.write("\n".join(self._vocab.keys()))
+            f.write("\n".join(self.vocab.keys()))
 
     def __repr__(self) -> str:
         """
