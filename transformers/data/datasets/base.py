@@ -7,8 +7,6 @@ from typing import List
 
 from transformers.tokenizers import BaseTokenizer
 
-__all__ = ["BaseSeqDataset"]
-
 
 class BaseSeqDataset(object, metaclass=ABCMeta):
     """Base sequence dataset.

@@ -5,8 +5,6 @@ from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional, Union
 
-__all__ = ["BaseTokenizer"]
-
 logger = logging.getLogger(__name__)
 
 

@@ -10,8 +10,6 @@ from transformers.tokenizers import BaseTokenizer
 from transformers.utils.file_io import PathManager
 from .base import BaseSeqDataset
 
-__all__ = ["TextDatasetForNextSentencePrediction"]
-
 
 class TextDatasetForNextSentencePrediction(BaseSeqDataset):
     """

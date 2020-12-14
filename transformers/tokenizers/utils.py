@@ -2,8 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import unicodedata
 
-__all__ = ["is_whitespace", "is_control", "is_punctuation"]
-
 
 def is_whitespace(char: str) -> bool:
     """Checks whether `char` is a whitespace character."""

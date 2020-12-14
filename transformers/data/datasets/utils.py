@@ -5,8 +5,6 @@ from typing import List, Optional, Union
 
 import torch
 
-__all__ = ["PaddingStrategy", "batch_pad_sequence"]
-
 
 class PaddingStrategy(Enum):
     """Possible values for the padding."""
