@@ -1,3 +1,9 @@
 DATASETS:
   TRAIN:
     -
+
+TOKENIZER:
+  NAME: BertTokenizer
+  VOCAB_FILE: datasets/bert/bert-vocabs/bert-base-cased-vocab.txt
+  BERT:
+    DO_LOWER_CASE: False

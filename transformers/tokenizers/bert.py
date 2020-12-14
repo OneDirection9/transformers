@@ -4,8 +4,10 @@ import logging
 import unicodedata
 from typing import Any, Dict, List, Optional
 
+from transformers.config import configurable
 from transformers.utils.file_io import PathManager
 from .base import BaseTokenizer
+from .build import TOKENIZER_REGISTRY
 from .utils import is_control, is_punctuation, is_whitespace
 
 logger = logging.getLogger(__name__)
@@ -20,6 +22,7 @@ def whitespace_tokenize(text: str) -> List[str]:
     return tokens
 
 
+@TOKENIZER_REGISTRY.register("BertTokenizer")
 class BertTokenizer(BaseTokenizer):
     """A BERT tokenizer based on wordpiece."""
 
@@ -31,6 +34,7 @@ class BertTokenizer(BaseTokenizer):
         "mask_token",
     ]
 
+    @configurable
     def __init__(
         self,
         vocab_file: str,
@@ -85,6 +89,19 @@ class BertTokenizer(BaseTokenizer):
 
         self.basic_tokenizer = BasicTokenizer(do_lower_case, tokenize_chinese_chars)
         self.wordpiece_tokenizer = WordpieceTokenizer(self.vocab, unk_token)
+
+    @classmethod
+    def from_config(cls, cfg) -> dict:
+        return {
+            "vocab_file": cfg.TOKENIZER.VOCAB_FILE,
+            "do_lower_case": cfg.TOKENIZER.BERT.DO_LOWER_CASE,
+            "tokenize_chinese_chars": cfg.TOKENIZER.BERT.TOKENIZE_CHINESE_CHARS,
+            "unk_token": cfg.TOKENIZER.UNK_TOKEN,
+            "sep_token": cfg.TOKENIZER.SEP_TOKEN,
+            "pad_token": cfg.TOKENIZER.PAD_TOKEN,
+            "cls_token": cfg.TOKENIZER.CLS_TOKEN,
+            "mask_token": cfg.TOKENIZER.MASK_TOKEN,
+        }
 
     def tokenize(self, text: str) -> List[str]:
         """Converts a string in a sequence of tokens, using the tokenizer."""
