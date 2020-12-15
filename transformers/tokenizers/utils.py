@@ -1,6 +1,10 @@
 from __future__ import absolute_import, division, print_function
 
 import unicodedata
+from collections import OrderedDict
+from typing import List
+
+from transformers.utils.file_io import PathManager
 
 
 def is_whitespace(char: str) -> bool:
@@ -39,3 +43,17 @@ def is_punctuation(char: str) -> bool:
     if cat.startswith("P"):
         return True
     return False
+
+
+def load_vocab_file(vocab_file: str) -> List[str]:
+    with open(PathManager.get_local_path(vocab_file), "r", encoding="utf-8") as f:
+        tokens = f.readlines()
+    tokens = [tok.rstrip("\n") for tok in tokens]
+    return tokens
+
+
+def save_vocab_file(vocab: OrderedDict, path: str):
+    # Need OrderedDict to keep the converted ids are consistent across different time
+    assert isinstance(vocab, OrderedDict)
+    with open(path, "w") as f:
+        f.write("\n".join(vocab.keys()))

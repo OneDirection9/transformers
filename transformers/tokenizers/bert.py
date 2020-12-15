@@ -5,10 +5,9 @@ import unicodedata
 from typing import Any, Dict, List, Optional
 
 from transformers.config import configurable
-from transformers.utils.file_io import PathManager
 from .base import BaseTokenizer
 from .build import TOKENIZER_REGISTRY
-from .utils import is_control, is_punctuation, is_whitespace
+from .utils import is_control, is_punctuation, is_whitespace, load_vocab_file
 
 logger = logging.getLogger(__name__)
 
@@ -68,9 +67,7 @@ class BertTokenizer(BaseTokenizer):
                 training this model with masked language modeling. This is the token which the model
                 will try to predict.
         """
-        with open(PathManager.get_local_path(vocab_file), "r", encoding="utf-8") as f:
-            tokens = f.readlines()
-        tokens = [tok.rstrip("\n") for tok in tokens]
+        tokens = load_vocab_file(vocab_file)
 
         self.unk_token = unk_token
         self.sep_token = sep_token

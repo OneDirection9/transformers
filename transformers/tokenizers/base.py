@@ -5,6 +5,8 @@ from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional, Union
 
+from .utils import save_vocab_file
+
 logger = logging.getLogger(__name__)
 
 
@@ -37,8 +39,8 @@ class BaseTokenizer(object, metaclass=ABCMeta):
         """Initializes tokenizer by list of tokens."""
         assert len(tokens) == len(set(tokens)), "There are some words appear more than once"
 
-        self.vocab: Dict[str, int] = OrderedDict([(k, v) for v, k in enumerate(tokens)])
-        self.inv_vocab: Dict[int, str] = OrderedDict([(v, k) for v, k in enumerate(tokens)])
+        self.vocab: OrderedDict[str, int] = OrderedDict([(k, v) for v, k in enumerate(tokens)])
+        self.inv_vocab: OrderedDict[int, str] = OrderedDict([(v, k) for v, k in enumerate(tokens)])
 
         # Check special tokens' attributes
         for name in self.SPECIAL_TOKENS_ATTRIBUTES:
@@ -130,9 +132,7 @@ class BaseTokenizer(object, metaclass=ABCMeta):
 
     def save(self, path: str) -> None:
         """Saves vocabulary to the file."""
-        # Keep the same order that the converted ids are consistent
-        with open(path, "w") as f:
-            f.write("\n".join(self.vocab.keys()))
+        save_vocab_file(self.vocab, path)
 
     def __repr__(self) -> str:
         """
