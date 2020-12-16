@@ -5,8 +5,8 @@ import unicodedata
 from typing import Any, Dict, List, Optional
 
 from transformers.config import configurable
-from .base import BaseTokenizer
 from .build import TOKENIZER_REGISTRY
+from .tokenizer import Tokenizer
 from .utils import is_control, is_punctuation, is_whitespace, load_vocab_file
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ def whitespace_tokenize(text: str) -> List[str]:
 
 
 @TOKENIZER_REGISTRY.register("BertTokenizer")
-class BertTokenizer(BaseTokenizer):
+class BertTokenizer(Tokenizer):
     """A BERT tokenizer based on wordpiece."""
 
     SPECIAL_TOKENS_ATTRIBUTES = [

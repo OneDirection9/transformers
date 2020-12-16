@@ -10,7 +10,7 @@ from .utils import save_vocab_file
 logger = logging.getLogger(__name__)
 
 
-class BaseTokenizer(object, metaclass=ABCMeta):
+class Tokenizer(object, metaclass=ABCMeta):
     """Base class for tokenization.
 
     This class provides a class attribute :attr:`SPECIAL_TOKENS_ATTRIBUTES` that user can define the
