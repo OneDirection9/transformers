@@ -24,7 +24,9 @@ class CfgNode(_CfgNode):
 
 
 def get_cfg() -> CfgNode:
-    """Gets a copy of the default config."""
+    """
+    Get a copy of the default config.
+    """
     from .defaults import _C
 
     return _C.clone()
