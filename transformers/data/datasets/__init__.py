@@ -1,5 +1,2 @@
-from . import utils
-from .base import BaseSeqDataset
-from .block_pair_dataset import TextDatasetForNextSentencePrediction
-
-__all__ = ["BaseSeqDataset", "TextDatasetForNextSentencePrediction"]
+from .builtin import DATASET_REGISTER
+from .wiki import load_wiki

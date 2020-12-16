@@ -5,36 +5,25 @@ import pprint
 from abc import ABCMeta, abstractmethod
 from typing import List
 
-from transformers.tokenizers import BaseTokenizer
 
+class Processor(object, metaclass=ABCMeta):
+    """
+    Base class for implementation of processing examples and returns processed examples. Note that
+    a processor should take all of examples as input, because, for example, for next sentence
+    prediction task, we may need to select another document randomly on the whole set to generate
+    negative examples.
 
-class BaseSeqDataset(object, metaclass=ABCMeta):
-    """Base sequence dataset.
-
-    This is not a typical PyTorch dataset and it works like a producer.
-
-    It contains the following features:
-
-    1. The :attr:`tokenizer` which is used to process sequence. See
-       :mod:`transformers.tokenizers` for more details.
-    2. The re-implemented :meth:`__repr__` producing nicely descriptions of the dataset.
-    3. Using :meth:`get_items` to produce list of examples.
-
-    Args:
-        tokenizer (BaseTokenizer):
+    The processor should return a list of dictionary.
     """
 
-    def __init__(self, tokenizer: BaseTokenizer):
-        self.tokenizer = tokenizer
-
     @abstractmethod
-    def get_items(self) -> List[dict]:
+    def __call__(self, *args, **kwargs) -> List[dict]:
         pass
 
     def __repr__(self) -> str:
         """
         Produce something like:
-        "MyDataset(field1={self.field1}, field2={self.field2})"
+        "MyProcessor(field1={self.field1}, field2={self.field2})"
         """
         try:
             sig = inspect.signature(self.__init__)

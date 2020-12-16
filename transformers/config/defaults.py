@@ -15,15 +15,30 @@ _C.DATASETS = CN()
 # List of the datasets for training.
 _C.DATASETS.TRAIN = ()
 
+# --------------------------------------------------------------------------- #
+# Processor
+# --------------------------------------------------------------------------- #
+_C.PROCESSOR = CN()
+
+_C.PROCESSOR.NAME = "SentencePair"
+
+# --------------------------------------------------------------------------- #
+# SentencePair
+# --------------------------------------------------------------------------- #
+_C.PROCESSOR.SENTENCE_PAIR = CN()
+# Maximum block size
+_C.PROCESSOR.SENTENCE_PAIR.BLOCK_SIZE = 512
+# Probability for generating shorter block pairs
+_C.PROCESSOR.SENTENCE_PAIR.SHORT_SEQ_PROBABILITY = 0.1
+# Probability for generating next sentence pairs
+_C.PROCESSOR.SENTENCE_PAIR.NSP_PROBABILITY = 0.1
 
 # --------------------------------------------------------------------------- #
 # Tokenizer
 # --------------------------------------------------------------------------- #
 _C.TOKENIZER = CN()
-
-# Name of the tokenizer
+# The tokenizer can be any name in the TOKENIZER_REGISTRY
 _C.TOKENIZER.NAME = ""
-
 # Path to vocabulary file
 _C.TOKENIZER.VOCAB_FILE = ""
 # The unknown token
@@ -42,7 +57,6 @@ _C.TOKENIZER.MASK_TOKEN = "[MASK]"
 # BertTokenizer
 # --------------------------------------------------------------------------- #
 _C.TOKENIZER.BERT = CN()
-
 # Whether to lowercase the input when tokenizing
 _C.TOKENIZER.BERT.DO_LOWER_CASE = True
 # Whether to tokenize Chinese characters

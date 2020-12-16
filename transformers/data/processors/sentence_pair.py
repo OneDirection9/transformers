@@ -1,77 +1,57 @@
 from __future__ import absolute_import, division, print_function
 
-import os
-import os.path as osp
 from typing import List, Tuple
 
 import numpy as np
 
-from transformers.tokenizers import BaseTokenizer
-from transformers.utils.file_io import PathManager
-from .base import BaseSeqDataset
+from transformers.config import configurable
+from transformers.tokenizers import Tokenizer, build_tokenizer
+from .build import PROCESSOR_REGISTRY
+from .processor import Processor
 
 
-class TextDatasetForNextSentencePrediction(BaseSeqDataset):
+@PROCESSOR_REGISTRY.register("SentencePair")
+class SentencePair(Processor):
     """
-    Loads the documents from wiki directory and breaks them into sentence pair blocks for next
-    sentence prediction as well as masked language model.
+    Breaks documents into sentence pair blocks for next sentence prediction as well as masked
+    language model.
 
     Args:
-        root (str): The wiki directory.
         block_size (int): Maximum block size.
-        tokenizer (BaseTokenizer):
+        tokenizer (Tokenizer):
         short_seq_probability (float): Probability for generating shorter block pairs.
         nsp_probability (float): Probability for generating next sentence pairs.
     """
 
+    @configurable
     def __init__(
         self,
-        root: str,
         block_size: int,
-        tokenizer: BaseTokenizer,
+        tokenizer: Tokenizer,
         short_seq_probability: float = 0.1,
-        nsp_probability=0.5,
+        nsp_probability: float = 0.5,
     ) -> None:
-        super(TextDatasetForNextSentencePrediction, self).__init__(tokenizer)
-
-        self.root = root
         self.block_size = block_size
+        self.tokenizer = tokenizer
         self.short_seq_probability = short_seq_probability
         self.nsp_probability = nsp_probability
 
-    def get_items(self) -> List[dict]:
-        documents = []
-        # file path looks like: root/wiki_0, root/wiki_1
-        for file_name in os.listdir(self.root):
-            file_path = osp.join(self.root, file_name)
-            with open(PathManager.get_local_path(file_path), "r", encoding="utf-8") as f:
-                original_lines = f.readlines()
+    @classmethod
+    def from_config(cls, cfg) -> dict:
+        return {
+            "block_size": cfg.PROCESSOR.SENTENCE_PAIR.BLOCK_SIZE,
+            "tokenizer": build_tokenizer(cfg),
+            "short_seq_probability": cfg.PROCESSOR.SENTENCE_PAIR.SHORT_SEQ_PROBABILITY,
+            "nsp_probability": cfg.PROCESSOR.SENTENCE_PAIR.NSP_PROBABILITY,
+        }
 
-            article_lines = []
-            article_open = False
-            for line in original_lines:
-                line = line.strip()
-                if "<doc id=" in line:
-                    article_open = True
-                elif "</doc>" in line:
-                    article_open = False
-                    # ignore the first line since it is the title
-                    cur_doc = [
-                        self.tokenizer.encode(line)
-                        for line in article_lines[1:]
-                        if len(line) > 0 and not line.isspace()
-                    ]
-                    documents.append(cur_doc)
-                    article_lines = []
-                else:
-                    if article_open:
-                        article_lines.append(line)
-
-        items = []
+    def __call__(self, documents: List[List[str]]) -> List[dict]:
+        # tokenize document
+        documents = [self.tokenizer.encode(line) for doc in documents for line in doc]
+        dataset_dicts = []
         for doc_id, doc in enumerate(documents):
-            items.extend(self._generate_sentence_pairs(documents, doc, doc_id))
-
-        return items
+            dataset_dicts.extend(self._generate_sentence_pairs(documents, doc, doc_id))
+        return dataset_dicts
 
     def _generate_sentence_pairs(
         self, documents: List[List[List[int]]], doc: List[List[int]], doc_id: int

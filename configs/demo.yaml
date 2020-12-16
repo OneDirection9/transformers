@@ -1,6 +1,6 @@
 DATASETS:
-  TRAIN:
-    -
+  TRAIN: ("wiki_train", )
+
 
 TOKENIZER:
   NAME: BertTokenizer

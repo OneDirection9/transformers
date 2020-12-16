@@ -8,6 +8,10 @@ TOKENIZER_REGISTRY = Registry("TOKENIZER")
 TOKENIZER_REGISTRY.__doc__ = """
 Registry for tokenizers, which tokenize sequence.
 
+The registered object must be a callable that accepts one argument:
+
+1. A :class:`transformers.config.CfgNode`
+
 Registered object must return instance of :class:`Tokenizer`.
 """
 
