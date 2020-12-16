@@ -61,3 +61,22 @@ _C.TOKENIZER.BERT = CN()
 _C.TOKENIZER.BERT.DO_LOWER_CASE = True
 # Whether to tokenize Chinese characters
 _C.TOKENIZER.BERT.TOKENIZE_CHINESE_CHARS = True
+
+
+# --------------------------------------------------------------------------- #
+# Dataloader
+# --------------------------------------------------------------------------- #
+_C.DATALOADER = CN()
+# Number of data loading threads
+_C.DATALOADER.NUM_WORKERS = 4
+# Options: TrainingSampler
+_C.DATALOADER.SAMPLER_TRAIN = "TrainingSampler"
+
+# --------------------------------------------------------------------------- #
+# Solver
+# --------------------------------------------------------------------------- #
+_C.SOLVER = CN()
+# Number of examples per batch across all machines
+# If we have 16 GPUs and NUM_PER_BATCH = 32,
+# each GPU will see 2 examples per batch.
+_C.SOLVER.NUM_PER_BATCH = 16

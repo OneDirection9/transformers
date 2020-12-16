@@ -9,6 +9,9 @@ from .wiki import load_wiki
 DATASET_REGISTER = Registry("DATASET")
 DATASET_REGISTER.__doc__ = """
 Register for datasets which produce list of examples.
+
+Using `DATASET_REGISTER.register_partial` to set all of arguments and can be consumed by
+`DATASET_REGISTER.get(name)()`.
 """
 
 

@@ -47,7 +47,7 @@ class SentencePair(Processor):
 
     def __call__(self, documents: List[List[str]]) -> List[dict]:
         # tokenize document
-        documents = [self.tokenizer.encode(line) for doc in documents for line in doc]
+        documents = [[self.tokenizer.encode(line) for line in doc] for doc in documents]
         dataset_dicts = []
         for doc_id, doc in enumerate(documents):
             dataset_dicts.extend(self._generate_sentence_pairs(documents, doc, doc_id))
