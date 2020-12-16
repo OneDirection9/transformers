@@ -10,7 +10,8 @@ __all__ = ["CfgNode", "get_cfg", "configurable"]
 
 
 class CfgNode(_CfgNode):
-    """The same as `foundation.common.config.CfgNode, but different in:
+    """
+    The same as `foundation.common.config.CfgNode, but different in:
 
     1. Use unsafe yaml loading by default.
        Note that this may lead to arbitrary code execution: you must not load a config file from
@@ -35,7 +36,7 @@ CFG_ARG_NAME = "cfg"
 
 def configurable(init_func: Callable = None, *, from_config: Callable = None) -> Callable:
     """
-    Decorates a class's __init__ method so that it can be called with a :class:`CfgNode` object
+    Decorate a class's __init__ method so that it can be called with a :class:`CfgNode` object
     using a :func:`from_config` function that translates :class:`CfgNode` to arguments.
 
     The first argument of :func:`from_config` must be an instance of :class:`CfgNode` and named as

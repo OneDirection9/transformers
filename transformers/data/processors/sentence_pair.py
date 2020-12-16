@@ -13,7 +13,7 @@ from .processor import Processor
 @PROCESSOR_REGISTRY.register("SentencePair")
 class SentencePair(Processor):
     """
-    Breaks documents into sentence pair blocks for next sentence prediction as well as masked
+    Break documents into sentence pair blocks for next sentence prediction as well as masked
     language model.
 
     Args:
@@ -56,7 +56,9 @@ class SentencePair(Processor):
     def _generate_sentence_pairs(
         self, documents: List[List[List[int]]], doc: List[List[int]], doc_id: int
     ) -> List[dict]:
-        """Go through a single document and generate sentence pairs from it."""
+        """
+        Go through a single document and generate sentence pairs from it.
+        """
         items = []
 
         # Account for special tokens
@@ -134,7 +136,9 @@ class SentencePair(Processor):
         return items
 
     def _skip_sampling(self, high: int, block_list: List[int]) -> int:
-        """Generate a random integer which in not in `block_list`. Sample range is [0, `high`). """
+        """
+        Generate a random integer which in not in `block_list`. Sample range is [0, `high`).
+        """
         blocked = set(block_list)
         total = [x for x in range(high) if x not in blocked]
         return np.random.choice(total)
@@ -142,7 +146,8 @@ class SentencePair(Processor):
     def _truncate_sequence(
         self, sent_a: List[int], sent_b: List[int], max_num_tokens: int
     ) -> Tuple[List[int], List[int]]:
-        """Truncates a pair of sentence to limit total length under `max_num_tokens`.
+        """
+        Truncate a pair of sentence to limit total length under `max_num_tokens`.
 
         Logics:
             1. Truncate longer sentence

@@ -11,7 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 class Tokenizer(object, metaclass=ABCMeta):
-    """Base class for tokenization.
+    """
+    Base class for tokenization.
 
     This class provides a class attribute :attr:`SPECIAL_TOKENS_ATTRIBUTES` that user can define the
     class attributes related to special tokens, instead of specifying special tokens.
@@ -60,11 +61,14 @@ class Tokenizer(object, metaclass=ABCMeta):
         self.all_special_tokens_ids: List[int] = self.convert_tokens_to_ids(self.all_special_tokens)
 
     def __len__(self) -> int:
-        """Returns the number of tokens in the dictionary."""
+        """
+        Return the number of tokens in the dictionary.
+        """
         return len(self.vocab)
 
     def add_tokens(self, new_tokens: List[str]) -> int:
-        """Adds a list of new tokens to the tokenizer class. If the new tokens are not in the
+        """
+        Add a list of new tokens to the tokenizer class. If the new tokens are not in the
         vocabulary, they are added to it with indices starting from length of the current
         vocabulary.
 
@@ -84,7 +88,8 @@ class Tokenizer(object, metaclass=ABCMeta):
         return len(tokens_to_add)
 
     def convert_tokens_to_ids(self, tokens: Union[str, List[str]]) -> Union[int, List[int]]:
-        """Converts a token or a sequence of tokens in a single index or a sequence of indices,
+        """
+        Convert a token or a sequence of tokens in a single index or a sequence of indices,
         using vocabulary.
         """
         if isinstance(tokens, str):
@@ -92,7 +97,8 @@ class Tokenizer(object, metaclass=ABCMeta):
         return [self.vocab[x] for x in tokens]
 
     def convert_ids_to_tokens(self, ids: Union[int, List[int]]) -> Union[str, List[str]]:
-        """Converts a single index or a sequence of indices in a token or a sequence of tokens,
+        """
+        Convert a single index or a sequence of indices in a token or a sequence of tokens,
         using vocabulary.
         """
         if isinstance(ids, int):
@@ -100,7 +106,8 @@ class Tokenizer(object, metaclass=ABCMeta):
         return [self.inv_vocab[x] for x in ids]
 
     def convert_tokens_to_string(self, tokens: List[str]) -> str:
-        """Converts a sequence of tokens in a single string.
+        """
+        Convert a sequence of tokens in a single string.
 
         The most simple way to do it is ``" ".join(tokens)`` but we often want to remove sub-word
         tokenization artifacts at the same time.
@@ -109,11 +116,14 @@ class Tokenizer(object, metaclass=ABCMeta):
 
     @abstractmethod
     def tokenize(self, text: str) -> List[str]:
-        """Tokenizes text into list of tokens"""
+        """
+        Tokenize text into list of tokens.
+        """
         pass
 
     def encode(self, text: str) -> List[int]:
-        """Encodes a sequence.
+        """
+        Encode a sequence.
 
         Tokenize a sequence into tokens and convert tokens to ids.
         """
@@ -122,7 +132,8 @@ class Tokenizer(object, metaclass=ABCMeta):
         return ids
 
     def decode(self, ids: List[int]) -> str:
-        """Decodes a sequence.
+        """
+        Decode a sequence.
 
         Convert ids to tokens and convert tokens to a string.
         """
@@ -131,7 +142,9 @@ class Tokenizer(object, metaclass=ABCMeta):
         return text
 
     def save(self, path: str) -> None:
-        """Saves vocabulary to the file."""
+        """
+        Save vocabulary to the file.
+        """
         save_vocab_file(self.vocab, path)
 
     def __repr__(self) -> str:
@@ -149,7 +162,8 @@ class Tokenizer(object, metaclass=ABCMeta):
 
     @abstractmethod
     def num_special_tokens_to_add(self, pair: bool = False) -> int:
-        """Returns the number of added tokens when preparing a sequence with special tokens.
+        """
+        Return the number of added tokens when preparing a sequence with special tokens.
 
         Args:
             pair (bool): Whether the number of added tokens should be computed in the case of a
@@ -159,7 +173,8 @@ class Tokenizer(object, metaclass=ABCMeta):
 
     @abstractmethod
     def __call__(self, ids: List[int], pair_ids: Optional[List[int]] = None) -> Dict[str, Any]:
-        """Prepare for the model a sequence or a pair of sequences.
+        """
+        Prepare for the model a sequence or a pair of sequences.
 
         Args:
             ids (List[int]): The first sequence to be encoded. This should be a list of integers

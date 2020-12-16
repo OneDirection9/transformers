@@ -8,7 +8,9 @@ from transformers.utils.file_io import PathManager
 
 
 def is_whitespace(char: str) -> bool:
-    """Checks whether `char` is a whitespace character."""
+    """
+    Check whether `char` is a whitespace character.'
+    """
     # \t, \n, and \r are technically control characters but we treat them as whitespace
     # since they are generally considered as such.
     if char == " " or char == "\t" or char == "\n" or char == "\r":
@@ -20,7 +22,9 @@ def is_whitespace(char: str) -> bool:
 
 
 def is_control(char: str) -> bool:
-    """Checks whether `char` is a control character."""
+    """
+    Check whether `char` is a control character.
+    """
     # These are technically control characters but we count them as whitespace characters.
     if char == "\t" or char == "\n" or char == "\r":
         return False
@@ -31,7 +35,9 @@ def is_control(char: str) -> bool:
 
 
 def is_punctuation(char: str) -> bool:
-    """Checks whether `char` is a punctuation character."""
+    """
+    Check whether `char` is a punctuation character.
+    """
     cp = ord(char)
     # We treat all non-letter/number ASCII as punctuation.
     # Characters such as "^", "$", and "`" are not in the Unicode

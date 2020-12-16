@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 def whitespace_tokenize(text: str) -> List[str]:
-    """Runs basic whitespace cleaning and splitting on a piece of text."""
+    """
+    Run basic whitespace cleaning and splitting on a piece of text.
+    """
     text = text.strip()
     if not text:
         return []
@@ -23,7 +25,9 @@ def whitespace_tokenize(text: str) -> List[str]:
 
 @TOKENIZER_REGISTRY.register("BertTokenizer")
 class BertTokenizer(Tokenizer):
-    """A BERT tokenizer based on wordpiece."""
+    """
+    A BERT tokenizer based on wordpiece.
+    """
 
     SPECIAL_TOKENS_ATTRIBUTES = [
         "unk_token",
@@ -101,7 +105,9 @@ class BertTokenizer(Tokenizer):
         }
 
     def tokenize(self, text: str) -> List[str]:
-        """Converts a string in a sequence of tokens, using the tokenizer."""
+        """
+        Convert a string in a sequence of tokens, using the tokenizer.
+        """
         split_tokens = []
         for token in self.basic_tokenizer.tokenize(text):
             for sub_token in self.wordpiece_tokenizer.tokenize(token):
@@ -152,7 +158,9 @@ class BertTokenizer(Tokenizer):
 
 
 class BasicTokenizer(object):
-    """Runs basic tokenization (punctuation splitting, lower casing, etc.)."""
+    """
+    Runs basic tokenization (punctuation splitting, lower casing, etc.).
+    """
 
     def __init__(self, do_lower_case: bool = True, tokenize_chinese_chars: bool = True) -> None:
         """
@@ -164,7 +172,8 @@ class BasicTokenizer(object):
         self.tokenize_chinese_chars = tokenize_chinese_chars
 
     def tokenize(self, text: str) -> List[str]:
-        """Basic Tokenization of a piece of text.
+        """
+        Basic Tokenization of a piece of text.
 
         Split on "white spaces" only, for sub-word tokenization, see :class:`WordpieceTokenizer`.
         """
@@ -191,7 +200,9 @@ class BasicTokenizer(object):
         return output_tokens
 
     def _run_strip_accents(self, text: str) -> str:
-        """Strips accents from a piece of text."""
+        """
+        Strip accents from a piece of text.
+        """
         text = unicodedata.normalize("NFD", text)
         output = []
         for char in text:
@@ -202,7 +213,9 @@ class BasicTokenizer(object):
         return "".join(output)
 
     def _run_split_on_punc(self, text: str) -> List[str]:
-        """Splits punctuation on a piece of text."""
+        """
+        Split punctuation on a piece of text.
+        """
         chars = list(text)
         i = 0
         start_new_word = True
@@ -222,7 +235,9 @@ class BasicTokenizer(object):
         return ["".join(x) for x in output]
 
     def _tokenize_chinese_chars(self, text: str) -> str:
-        """Adds whitespace around any CJK character."""
+        """
+        Add whitespace around any CJK character.
+        """
         output = []
         for char in text:
             cp = ord(char)
@@ -235,7 +250,9 @@ class BasicTokenizer(object):
         return "".join(output)
 
     def _is_chinese_char(self, cp: int) -> bool:
-        """Checks whether CP is the codepoint of a CJK character."""
+        """
+        Check whether CP is the codepoint of a CJK character.
+        """
         # This defines a "chinese character" as anything in the CJK Unicode block:
         #   https://en.wikipedia.org/wiki/CJK_Unified_Ideographs_(Unicode_block)
         #
@@ -259,7 +276,9 @@ class BasicTokenizer(object):
         return False
 
     def _clean_text(self, text: str) -> str:
-        """Performs invalid character removal and whitespace cleanup on text."""
+        """
+        Perform invalid character removal and whitespace cleanup on text.
+        """
         output = []
         for char in text:
             cp = ord(char)
@@ -273,7 +292,9 @@ class BasicTokenizer(object):
 
 
 class WordpieceTokenizer(object):
-    """Runs wordpiece tokenization."""
+    """
+    Run wordpiece tokenization.
+    """
 
     def __init__(self, vocab: Dict, unk_token: str, max_input_chars_per_word: int = 100) -> None:
         self.vocab = vocab
@@ -281,7 +302,8 @@ class WordpieceTokenizer(object):
         self.max_input_chars_per_word = max_input_chars_per_word
 
     def tokenize(self, text: str) -> List[str]:
-        """Tokenizes a piece of text into its word pieces.
+        """
+        Tokenize a piece of text into its word pieces.
 
         This uses a greedy longest-match-first algorithm to perform tokenization using the given
         vocabulary.

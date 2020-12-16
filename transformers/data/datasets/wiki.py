@@ -9,7 +9,7 @@ from transformers.utils.file_io import PathManager
 
 def load_wiki(root: str) -> List[List[str]]:
     """
-    Loads the documents from wiki directory.
+    Load the documents from wiki directory.
     """
     documents = []
     # file path looks like: root/wiki_0, root/wiki_1
