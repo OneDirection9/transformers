@@ -17,7 +17,7 @@ class Processor(object, metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def __call__(self, *args, **kwargs) -> List[dict]:
+    def __call__(self, items: List) -> List[dict]:
         pass
 
     def __repr__(self) -> str:

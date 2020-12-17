@@ -25,6 +25,16 @@ class DatasetMapper(object):
 
 
 def get_dataset_dicts(dataset_names, processor: Optional[Processor] = None) -> List[dict]:
+    """
+    Load and prepare dataset dicts for natural language tasks.
+
+    Args:
+        dataset_names (str or list[str]):  A dataset name or a list of dataset names.
+        processor (Processor, optional): Callable object to process all examples
+
+    Returns:
+        list[dict]: A list of dicts.
+    """
     if isinstance(dataset_names, str):
         dataset_names = [dataset_names]
     assert len(dataset_names)
@@ -41,6 +51,19 @@ def get_dataset_dicts(dataset_names, processor: Optional[Processor] = None) -> L
 
 
 def build_batch_data_loader(dataset, sampler, total_batch_size, num_workers=0):
+    """
+    Build a batched dataloader.
+
+    Args:
+        dataset (torch.utils.data.Dataset): Map-style PyTorch dataset. Can be indexed.
+        sampler (torch.utils.data.Sampler): A sampler taht produces indices.
+        total_batch_size: See :func:`build_train_loader`.
+        num_workers: See :func:`build_train_loader`.
+
+    Returns:
+        iterable[list]: Length of each list is the batch size of the current
+            GPU. Each element in the list comes from the dataset.
+    """
     world_size = get_world_size()
     assert (
         total_batch_size > 0 and total_batch_size % world_size == 0
@@ -89,6 +112,26 @@ def _train_loader_from_config(cfg, mapper=None, *, dataset=None, sampler=None):
 
 @configurable(from_config=_train_loader_from_config)
 def build_train_loader(dataset, *, mapper, sampler=None, total_batch_size, num_workers=0):
+    """
+    Build a train loader with some default features.
+
+    Args:
+        dataset (list or torch.utils.data.Dataset): A list of dataset dicts, or a map-style PyTorch
+            dataset. They can be obtained by using :func:`DATASET_REGISTRY.get` or
+            :func:`get_dataset_dicts`.
+        mapper (callable): A callable which takes a sample (dict) from dataset and returns the
+            format to be consumed by the model.
+        sampler (torch.utils.data.Sampler or None): A sampler that produces indices to be applied on
+            ``dataset``.
+        total_batch_size (int): Total batch size across all workers. Batching simply puts data into
+            a list.
+        num_workers (int): Number of parallel data loading workers.
+
+    Returns:
+        torch.utils.data.DataLoader: A dataloader. Each output from it is a
+            ``list[mapped_element]`` of length ``total_batch_size / num_workers``,
+            where ``mapped_element`` is produced by the ``mapper``.
+    """
     if isinstance(dataset, list):
         dataset = DatasetFromList(dataset, copy=False)
     if mapper is not None:
