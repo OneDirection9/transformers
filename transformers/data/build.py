@@ -11,17 +11,10 @@ from transformers.config import configurable
 from transformers.utils.comm import get_world_size
 from transformers.utils.env import seed_all_rng
 from .common import DatasetFromList, MapDataset
+from .dataset_mapper import DatasetMapper
 from .datasets import DATASET_REGISTRY
 from .processors import Processor, build_processor
 from .samplers import TrainingSampler
-
-
-class DatasetMapper(object):
-    def __init__(self, cfg, is_train):
-        pass
-
-    def __call__(self, item):
-        return item
 
 
 def get_dataset_dicts(dataset_names, processor: Optional[Processor] = None) -> List[dict]:
