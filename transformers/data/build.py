@@ -11,7 +11,7 @@ from transformers.config import configurable
 from transformers.utils.comm import get_world_size
 from transformers.utils.env import seed_all_rng
 from .common import DatasetFromList, MapDataset
-from .datasets import DATASET_REGISTER
+from .datasets import DATASET_REGISTRY
 from .processors import Processor, build_processor
 from .samplers import TrainingSampler
 
@@ -39,7 +39,7 @@ def get_dataset_dicts(dataset_names, processor: Optional[Processor] = None) -> L
         dataset_names = [dataset_names]
     assert len(dataset_names)
 
-    dataset_dicts = [DATASET_REGISTER.get(name)() for name in dataset_names]
+    dataset_dicts = [DATASET_REGISTRY.get(name)() for name in dataset_names]
     for dataset_name, dicts in zip(dataset_names, dataset_dicts):
         assert len(dicts), "Dataset `{}` is empty!".format(dataset_name)
 
