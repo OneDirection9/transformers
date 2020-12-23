@@ -18,7 +18,10 @@ def get_readme():
     return content
 
 
-install_requires = []
+install_requires = [
+    "fvcore",
+    "iopath",
+]
 
 extras_require = {
     "dev": [

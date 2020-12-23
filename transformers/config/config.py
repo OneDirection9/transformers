@@ -4,14 +4,14 @@ import functools
 import inspect
 from typing import Callable
 
-from foundation.common.config import CfgNode as _CfgNode
+from fvcore.common.config import CfgNode as _CfgNode
 
 __all__ = ["CfgNode", "get_cfg", "configurable"]
 
 
 class CfgNode(_CfgNode):
     """
-    The same as `foundation.common.config.CfgNode, but different in:
+    The same as `fvcore.common.config.CfgNode, but different in:
 
     1. Use unsafe yaml loading by default.
        Note that this may lead to arbitrary code execution: you must not load a config file from
