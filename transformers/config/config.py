@@ -6,7 +6,7 @@ from typing import Callable
 
 from fvcore.common.config import CfgNode as _CfgNode
 
-__all__ = ["CfgNode", "get_cfg", "configurable"]
+__all__ = ["CfgNode", "global_cfg", "get_cfg", "set_global_cfg", "configurable"]
 
 
 class CfgNode(_CfgNode):
@@ -23,6 +23,9 @@ class CfgNode(_CfgNode):
         super(CfgNode, self).merge_from_file(cfg_filename, allow_unsafe)
 
 
+global_cfg = CfgNode()
+
+
 def get_cfg() -> CfgNode:
     """
     Get a copy of the default config.
@@ -30,6 +33,25 @@ def get_cfg() -> CfgNode:
     from .defaults import _C
 
     return _C.clone()
+
+
+def set_global_cfg(cfg: CfgNode) -> None:
+    """
+    Let the global config point to the given cfg.
+
+    Assume that the given "cfg" has the key "KEY", after calling
+    `set_global_cfg(cfg)`, the key can be accessed by:
+    ::
+        from detectron2.config import global_cfg
+        print(global_cfg.KEY)
+
+    By using a hacky global config, you can access these configs anywhere,
+    without having to pass the config object or the values deep into the code.
+    This is a hacky feature introduced for quick prototyping / research exploration.
+    """
+    global global_cfg
+    global_cfg.clear()
+    global_cfg.update(cfg)
 
 
 FROM_CONFIG_FUNC_NAME = "from_config"
@@ -123,7 +145,7 @@ def configurable(init_func: Callable = None, *, from_config: Callable = None) ->
         return wrapper
 
 
-def _get_args_from_config(from_config_func, *args, **kwargs):
+def _get_args_from_config(from_config_func, *args, **kwargs) -> dict:
     """
     Use `from_config` to obtain explicit arguments.
 

@@ -1,7 +1,5 @@
 DATASETS:
   TRAIN: ("wiki_train", )
-
-
 TOKENIZER:
   NAME: BertTokenizer
   VOCAB_FILE: datasets/bert/bert-vocabs/bert-base-cased-vocab.txt

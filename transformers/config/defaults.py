@@ -80,3 +80,20 @@ _C.SOLVER = CN()
 # If we have 16 GPUs and NUM_PER_BATCH = 32,
 # each GPU will see 2 examples per batch.
 _C.SOLVER.NUM_PER_BATCH = 16
+
+
+# --------------------------------------------------------------------------- #
+# Misc options
+# --------------------------------------------------------------------------- #
+# Directory where output files are written
+_C.OUTPUT_DIR = "./output"
+# Set seed to negative to fully randomize everything.
+# Set seed to positive to use a fixed seed. Note that a fixed seed increases
+# reproducibility but does not guarantee fully deterministic behavior.
+# Disabling all parallelism further increases reproducibility.
+_C.SEED = -1
+# Benchmark different cudnn algorithms.
+# If input images have very different sizes, this option will have large overhead
+# for about 10k iterations. It usually hurts total time, but can benefit for certain models.
+# If input images have the same or similar sizes, benchmark is often helpful.
+_C.CUDNN_BENCHMARK = False
