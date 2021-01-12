@@ -46,7 +46,7 @@ class Tokenizer(object, metaclass=ABCMeta):
         # Check special tokens' attributes
         for name in self.SPECIAL_TOKENS_ATTRIBUTES:
             if not hasattr(self, name):
-                raise AttributeError(f"{self.__class__.__name__} does't have attribute {name}")
+                raise AttributeError(f"{self.__class__.__name__} doesn't have attribute {name}")
 
         self.special_tokens_map: Dict[str, str] = {
             name: getattr(self, name) for name in self.SPECIAL_TOKENS_ATTRIBUTES
