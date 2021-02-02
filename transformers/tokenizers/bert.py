@@ -2,7 +2,9 @@ from __future__ import absolute_import, division, print_function
 
 import logging
 import unicodedata
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
+
+import torch
 
 from transformers.config import configurable
 from .build import TOKENIZER_REGISTRY
@@ -105,9 +107,6 @@ class BertTokenizer(Tokenizer):
         }
 
     def tokenize(self, text: str) -> List[str]:
-        """
-        Convert a string in a sequence of tokens, using the tokenizer.
-        """
         split_tokens = []
         for token in self.basic_tokenizer.tokenize(text):
             for sub_token in self.wordpiece_tokenizer.tokenize(token):
@@ -122,7 +121,17 @@ class BertTokenizer(Tokenizer):
         # single sequence: [CLS] X [SEP]
         return 3 if pair else 2
 
-    def __call__(self, ids: List[int], pair_ids: Optional[List[int]] = None) -> Dict[str, Any]:
+    def __call__(
+        self, ids: List[int], pair_ids: Optional[List[int]] = None
+    ) -> Dict[str, torch.Tensor]:
+        """
+        Returns:
+            Dict[str, Tensor]: A dictionary with following fields:
+                - **input_ids**: List of token ids to be fed to a model.
+                - **token_type_ids**: List of token type ids to be fed to a model.
+                - **special_tokens_mask**: List of 0s and 1s, with 1 specifying added special tokens
+                  and 0 specifying regular sequence tokens.
+        """
         cls_id = self.cls_token_id
         sep_id = self.sep_token_id
 
@@ -151,9 +160,9 @@ class BertTokenizer(Tokenizer):
             special_tokens_mask = [1] + [0] * len(ids) + [1]
 
         return {
-            "input_ids": input_ids,
-            "token_type_ids": token_type_ids,
-            "special_tokens_mask": special_tokens_mask,
+            "input_ids": torch.tensor(input_ids, dtype=torch.long),
+            "token_type_ids": torch.tensor(token_type_ids, dtype=torch.long),
+            "special_tokens_mask": torch.tensor(special_tokens_mask, dtype=torch.bool),
         }
 
 
@@ -313,7 +322,7 @@ class WordpieceTokenizer(object):
                 passed through `BasicTokenizer`.
 
         Returns:
-            List[str]: A list of wordpiece tokens.
+            output_tokens (List[str]): A list of wordpiece tokens.
 
         Examples:
             input = "unaffable"

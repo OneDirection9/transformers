@@ -37,7 +37,9 @@ class Tokenizer(object, metaclass=ABCMeta):
     SPECIAL_TOKENS_ATTRIBUTES = []
 
     def __init__(self, tokens: List[str]) -> None:
-        """Initializes tokenizer by list of tokens."""
+        """
+        Initialize tokenizer by list of tokens.
+        """
         assert len(tokens) == len(set(tokens)), "There are some words appear more than once"
 
         self.vocab: OrderedDict[str, int] = OrderedDict([(k, v) for v, k in enumerate(tokens)])
@@ -117,7 +119,7 @@ class Tokenizer(object, metaclass=ABCMeta):
     @abstractmethod
     def tokenize(self, text: str) -> List[str]:
         """
-        Tokenize text into list of tokens.
+        Convert a string into a list of tokens.
         """
         pass
 
@@ -181,13 +183,6 @@ class Tokenizer(object, metaclass=ABCMeta):
                 (tokenized string ids using the :meth:`convert_tokens_to_ids`)
             pair_ids (List[int], optional): The second sequence to be encoded. This should be a list
                 of integers (tokenized string ids using the :meth:`convert_tokens_to_ids`).
-
-        Returns:
-            Dict[str, Any]: A dictionary with following fields:
-                - **input_ids**: List of token ids to be fed to a model.
-                - **token_type_ids**: List of token type ids to be fed to a model.
-                - **special_tokens_mask**: List of 0s and 1s, with 1 specifying added special tokens
-                  and 0 specifying regular sequence tokens.
 
         Notes:
             Usually the input arguments should be truncated and shouldn't have special tokens.
