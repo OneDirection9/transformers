@@ -174,9 +174,12 @@ class Tokenizer(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def __call__(self, ids: List[int], pair_ids: Optional[List[int]] = None) -> Dict[str, Any]:
+    def prepare_for_model(
+        self, ids: List[int], pair_ids: Optional[List[int]] = None
+    ) -> Dict[str, Any]:
         """
-        Prepare for the model a sequence or a pair of sequences.
+        Prepare a sequence of input id, or a pair of sequence of input ids so that it can be used by
+        the model.
 
         Args:
             ids (List[int]): The first sequence to be encoded. This should be a list of integers

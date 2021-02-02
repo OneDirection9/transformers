@@ -121,7 +121,7 @@ class BertTokenizer(Tokenizer):
         # single sequence: [CLS] X [SEP]
         return 3 if pair else 2
 
-    def __call__(
+    def prepare_for_model(
         self, ids: List[int], pair_ids: Optional[List[int]] = None
     ) -> Dict[str, torch.Tensor]:
         """

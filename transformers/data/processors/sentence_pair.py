@@ -125,7 +125,7 @@ class SentencePair(Processor):
                 sent_a, sent_b = self._truncate_sequence(sent_a, sent_b, max_num_tokens)
 
                 item = {
-                    **self.tokenizer(sent_a, sent_b),
+                    **self.tokenizer.prepare_for_model(sent_a, sent_b),
                     "next_sent_label": next_sent_label,
                 }
                 items.append(item)
