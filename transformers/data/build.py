@@ -79,7 +79,7 @@ def build_batch_data_loader(dataset, sampler, total_batch_size, num_workers=0):
 
 def _train_loader_from_config(cfg, mapper=None, *, dataset=None, sampler=None):
     if dataset is None:
-        processor = build_processor(cfg)
+        processor = build_processor(cfg) if cfg.INPUT.PROCESSOR_NAME else None
         dataset = get_dataset_dicts(cfg.DATASETS.TRAIN, processor)
 
     if mapper is None:

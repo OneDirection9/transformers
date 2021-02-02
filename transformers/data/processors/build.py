@@ -23,7 +23,7 @@ def build_processor(cfg) -> Processor:
     Returns:
         an instance of :class:`Processor`.
     """
-    processor_name = cfg.PROCESSOR.NAME
+    processor_name = cfg.INPUT.PROCESSOR_NAME
     processor = PROCESSOR_REGISTRY.get(processor_name)(cfg)
     assert isinstance(processor, Processor)
     return processor

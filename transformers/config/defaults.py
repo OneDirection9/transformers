@@ -38,30 +38,25 @@ _C.TOKENIZER.BERT.TOKENIZE_CHINESE_CHARS = True
 
 
 # --------------------------------------------------------------------------- #
+# Input
+# --------------------------------------------------------------------------- #
+_C.INPUT = CN()
+# The processor can by any name in the PROCESSOR_REGISTRY, or "" (no processor)
+_C.INPUT.PROCESSOR_NAME = ""
+# Maximum block size
+_C.INPUT.BLOCK_SIZE = 512
+# Probability for generating shorter block pairs, see `SentencePair`
+_C.INPUT.SHORT_SEQ_PROBABILITY = 0.1
+# Probability for generating next sentence pairs, see `SentencePair`
+_C.INPUT.NSP_PROBABILITY = 0.1
+
+
+# --------------------------------------------------------------------------- #
 # Dataset
 # --------------------------------------------------------------------------- #
 _C.DATASETS = CN()
 # List of the datasets for training.
 _C.DATASETS.TRAIN = ()
-
-
-# --------------------------------------------------------------------------- #
-# Processor
-# --------------------------------------------------------------------------- #
-_C.PROCESSOR = CN()
-
-_C.PROCESSOR.NAME = "SentencePair"
-
-# --------------------------------------------------------------------------- #
-# SentencePair
-# --------------------------------------------------------------------------- #
-_C.PROCESSOR.SENTENCE_PAIR = CN()
-# Maximum block size
-_C.PROCESSOR.SENTENCE_PAIR.BLOCK_SIZE = 512
-# Probability for generating shorter block pairs
-_C.PROCESSOR.SENTENCE_PAIR.SHORT_SEQ_PROBABILITY = 0.1
-# Probability for generating next sentence pairs
-_C.PROCESSOR.SENTENCE_PAIR.NSP_PROBABILITY = 0.1
 
 
 # --------------------------------------------------------------------------- #

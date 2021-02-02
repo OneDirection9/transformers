@@ -40,10 +40,10 @@ class SentencePair(Processor):
     @classmethod
     def from_config(cls, cfg) -> dict:
         return {
-            "block_size": cfg.PROCESSOR.SENTENCE_PAIR.BLOCK_SIZE,
+            "block_size": cfg.INPUT.BLOCK_SIZE,
             "tokenizer": build_tokenizer(cfg),
-            "short_seq_probability": cfg.PROCESSOR.SENTENCE_PAIR.SHORT_SEQ_PROBABILITY,
-            "nsp_probability": cfg.PROCESSOR.SENTENCE_PAIR.NSP_PROBABILITY,
+            "short_seq_probability": cfg.INPUT.SHORT_SEQ_PROBABILITY,
+            "nsp_probability": cfg.INPUT.NSP_PROBABILITY,
         }
 
     def __call__(self, documents: List[List[str]]) -> List[dict]:
