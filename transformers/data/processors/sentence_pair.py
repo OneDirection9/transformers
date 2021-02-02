@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 from typing import List, Tuple
 
 import numpy as np
+import torch
 
 from transformers.config import configurable
 from transformers.tokenizers import Tokenizer, build_tokenizer
@@ -126,7 +127,7 @@ class SentencePair(Processor):
 
                 item = {
                     **self.tokenizer.prepare_for_model(sent_a, sent_b),
-                    "next_sent_label": next_sent_label,
+                    "next_sent_label": torch.tensor(next_sent_label, dtype=torch.long),
                 }
                 items.append(item)
 
