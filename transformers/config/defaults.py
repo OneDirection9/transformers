@@ -5,33 +5,8 @@ from .config import CfgNode as CN
 # --------------------------------------------------------------------------- #
 # Config definition
 # --------------------------------------------------------------------------- #
-
 _C = CN()
 
-# --------------------------------------------------------------------------- #
-# Dataset
-# --------------------------------------------------------------------------- #
-_C.DATASETS = CN()
-# List of the datasets for training.
-_C.DATASETS.TRAIN = ()
-
-# --------------------------------------------------------------------------- #
-# Processor
-# --------------------------------------------------------------------------- #
-_C.PROCESSOR = CN()
-
-_C.PROCESSOR.NAME = "SentencePair"
-
-# --------------------------------------------------------------------------- #
-# SentencePair
-# --------------------------------------------------------------------------- #
-_C.PROCESSOR.SENTENCE_PAIR = CN()
-# Maximum block size
-_C.PROCESSOR.SENTENCE_PAIR.BLOCK_SIZE = 512
-# Probability for generating shorter block pairs
-_C.PROCESSOR.SENTENCE_PAIR.SHORT_SEQ_PROBABILITY = 0.1
-# Probability for generating next sentence pairs
-_C.PROCESSOR.SENTENCE_PAIR.NSP_PROBABILITY = 0.1
 
 # --------------------------------------------------------------------------- #
 # Tokenizer
@@ -52,7 +27,6 @@ _C.TOKENIZER.CLS_TOKEN = "[CLS]"
 # The token used for masking values
 _C.TOKENIZER.MASK_TOKEN = "[MASK]"
 
-
 # --------------------------------------------------------------------------- #
 # BertTokenizer
 # --------------------------------------------------------------------------- #
@@ -64,6 +38,33 @@ _C.TOKENIZER.BERT.TOKENIZE_CHINESE_CHARS = True
 
 
 # --------------------------------------------------------------------------- #
+# Dataset
+# --------------------------------------------------------------------------- #
+_C.DATASETS = CN()
+# List of the datasets for training.
+_C.DATASETS.TRAIN = ()
+
+
+# --------------------------------------------------------------------------- #
+# Processor
+# --------------------------------------------------------------------------- #
+_C.PROCESSOR = CN()
+
+_C.PROCESSOR.NAME = "SentencePair"
+
+# --------------------------------------------------------------------------- #
+# SentencePair
+# --------------------------------------------------------------------------- #
+_C.PROCESSOR.SENTENCE_PAIR = CN()
+# Maximum block size
+_C.PROCESSOR.SENTENCE_PAIR.BLOCK_SIZE = 512
+# Probability for generating shorter block pairs
+_C.PROCESSOR.SENTENCE_PAIR.SHORT_SEQ_PROBABILITY = 0.1
+# Probability for generating next sentence pairs
+_C.PROCESSOR.SENTENCE_PAIR.NSP_PROBABILITY = 0.1
+
+
+# --------------------------------------------------------------------------- #
 # Dataloader
 # --------------------------------------------------------------------------- #
 _C.DATALOADER = CN()
@@ -71,6 +72,7 @@ _C.DATALOADER = CN()
 _C.DATALOADER.NUM_WORKERS = 4
 # Options: TrainingSampler
 _C.DATALOADER.SAMPLER_TRAIN = "TrainingSampler"
+
 
 # --------------------------------------------------------------------------- #
 # Solver
