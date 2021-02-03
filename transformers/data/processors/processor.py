@@ -13,7 +13,8 @@ class Processor(object, metaclass=ABCMeta):
     prediction task, we may need to select another document randomly on the whole set to generate
     negative examples.
 
-    The processor should return a list of dictionary.
+    The processor usually used to do the operation that only need to do once in whole training life,
+    e.g. truncation, tokenization, and so on.
     """
 
     @abstractmethod
