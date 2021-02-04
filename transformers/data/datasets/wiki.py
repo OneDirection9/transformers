@@ -13,9 +13,6 @@ def load_wiki(root: str) -> List[List[str]]:
     """
     documents = []
     # file path looks like: root/wiki_0, root/wiki_1
-
-    documents = []
-    # file path looks like: root/wiki_0, root/wiki_1
     for file_name in os.listdir(root):
         file_path = osp.join(root, file_name)
         with open(PathManager.get_local_path(file_path), "r", encoding="utf-8") as f:
