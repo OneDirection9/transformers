@@ -1,8 +1,10 @@
 from __future__ import absolute_import, division, print_function
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import torch
+
+from transformers.tokenizers import Tokenizer
 
 
 def pad_sequence(
@@ -42,6 +44,10 @@ def pad_sequence(
     Returns:
         Tensor: ``T x B x *`` if :attr:`batch_first` is ``False``. ``B x T x *`` otherwise.
     """
+    if sequences[0].dim() == 0:
+        # 0 dimension tensor
+        return torch.stack(sequences)
+
     # assuming trailing dimensions and type of all the Tensors
     # in sequences are same and fetching those from sequences[0]
     trailing_dims = sequences[0].size()[1:]
@@ -79,3 +85,47 @@ def pad_sequence(
                 )
 
     return out_tensor
+
+
+def pad_dict(
+    batch: List[Dict[str, torch.Tensor]],
+    tokenizer: Tokenizer,
+    batch_first: bool = False,
+    padding_strategy: str = "right",
+    pad_to_length: Optional[int] = None,
+    pad_to_multiple: int = 1,
+) -> Dict[str, torch.Tensor]:
+    """
+    Pad a batch of data.
+
+    Pad the ``token_type_ids`` with ``tokenizer.pad_token_type_id``, pad the ``special_tokens_mask``
+    with ``1``, pad others with ``tokenizer.pad_token_id``.
+
+    Args:
+        batch: Batch of data.
+        tokenizer:
+        batch_first:
+        padding_strategy:
+        pad_to_length:
+        pad_to_multiple:
+
+    Returns:
+        Dict[str, torch.Tensor]: A dict of lists of padded tensor.
+    """
+    ret = {}
+
+    def _pad(sequences, padding_value):
+        return pad_sequence(
+            sequences, batch_first, padding_value, padding_strategy, pad_to_length, pad_to_multiple
+        )
+
+    for key in batch[0].keys():
+        data = [x[key] for x in batch]
+        if key == "token_type_ids":
+            ret[key] = _pad(data, tokenizer.pad_token_type_id)
+        elif key == "special_tokens_mask":
+            ret[key] = _pad(data, 1)
+        else:
+            ret[key] = _pad(data, tokenizer.pad_token_id)
+
+    return ret
