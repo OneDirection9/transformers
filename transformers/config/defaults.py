@@ -41,14 +41,26 @@ _C.TOKENIZER.BERT.TOKENIZE_CHINESE_CHARS = True
 # Input
 # --------------------------------------------------------------------------- #
 _C.INPUT = CN()
-# The processor can by any name in the PROCESSOR_REGISTRY, or "" (no processor)
+# The processor can by any name in the PROCESSOR_REGISTRY,
+# or "" (no processor)
 _C.INPUT.PROCESSOR_NAME = ""
-# Maximum block size
+# Maximum block size, also reused by `DataCollator`
 _C.INPUT.BLOCK_SIZE = 512
+
 # Probability for generating shorter block pairs, see `SentencePair`
 _C.INPUT.SHORT_SEQ_PROBABILITY = 0.1
 # Probability for generating next sentence pairs, see `SentencePair`
-_C.INPUT.NSP_PROBABILITY = 0.1
+_C.INPUT.NSP_PROBABILITY = 0.5
+
+# Truncation strategy, options: "longest_first", "only_first", "only_second"
+_C.INPUT.TRUNCATION_STRATEGY = "longest_first"
+
+# How to batch a list data
+_C.INPUT.BATCH_FIRST = False
+# Padding strategy, options: "left" or "right"
+_C.INPUT.PADDING_STRATEGY = "right"
+# Pad the sequence to a multiple of the provided value
+_C.INPUT.PAD_TO_MULTIPLE = 1
 
 
 # --------------------------------------------------------------------------- #

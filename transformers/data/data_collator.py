@@ -4,7 +4,8 @@ from typing import Dict, List, Optional
 
 import torch
 
-from transformers.tokenizers import Tokenizer
+from transformers.config import configurable
+from transformers.tokenizers import Tokenizer, build_tokenizer
 
 
 def pad_sequence(
@@ -87,45 +88,59 @@ def pad_sequence(
     return out_tensor
 
 
-def pad_dict(
-    batch: List[Dict[str, torch.Tensor]],
-    tokenizer: Tokenizer,
-    batch_first: bool = False,
-    padding_strategy: str = "right",
-    pad_to_length: Optional[int] = None,
-    pad_to_multiple: int = 1,
-) -> Dict[str, torch.Tensor]:
+class DataCollator(object):
     """
-    Pad a batch of data.
+    Data collator for collating a list of dict into a batch.
 
     Pad the ``token_type_ids`` with ``tokenizer.pad_token_type_id``, pad the ``special_tokens_mask``
     with ``1``, pad others with ``tokenizer.pad_token_id``.
-
-    Args:
-        batch: Batch of data.
-        tokenizer:
-        batch_first:
-        padding_strategy:
-        pad_to_length:
-        pad_to_multiple:
-
-    Returns:
-        Dict[str, torch.Tensor]: A dict of lists of padded tensor.
     """
-    ret = {}
 
-    def _pad(sequences, padding_value):
-        return pad_sequence(
-            sequences, batch_first, padding_value, padding_strategy, pad_to_length, pad_to_multiple
-        )
+    @configurable
+    def __init__(
+        self,
+        tokenizer: Tokenizer,
+        batch_first: bool = False,
+        padding_strategy: str = "right",
+        pad_to_length: Optional[int] = None,
+        pad_to_multiple: int = 1,
+    ) -> None:
+        self.tokenizer = tokenizer
+        self.batch_first = batch_first
+        self.padding_strategy = padding_strategy
+        self.pad_to_length = pad_to_length
+        self.pad_to_multiple = pad_to_multiple
 
-    for key in batch[0].keys():
-        data = [x[key] for x in batch]
-        if key == "token_type_ids":
-            ret[key] = _pad(data, tokenizer.pad_token_type_id)
-        elif key == "special_tokens_mask":
-            ret[key] = _pad(data, 1)
-        else:
-            ret[key] = _pad(data, tokenizer.pad_token_id)
+    @classmethod
+    def from_config(cls, cfg) -> dict:
+        return {
+            "tokenizer": build_tokenizer(cfg),
+            "batch_first": cfg.INPUT.BATCH_FIRST,
+            "padding_strategy": cfg.INPUT.PADDING_STRATEGY,
+            "pad_to_length": cfg.INPUT.BLOCK_SIZE,
+            "pad_to_multiple": cfg.INPUT.PAD_TO_MULTIPLE,
+        }
 
-    return ret
+    def __call__(self, batch: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
+        ret = {}
+
+        def _pad(sequences, padding_value):
+            return pad_sequence(
+                sequences,
+                self.batch_first,
+                padding_value,
+                self.padding_strategy,
+                self.pad_to_length,
+                self.pad_to_multiple,
+            )
+
+        for key in batch[0].keys():
+            data = [x[key] for x in batch]
+            if key == "token_type_ids":
+                ret[key] = _pad(data, self.tokenizer.pad_token_type_id)
+            elif key == "special_tokens_mask":
+                ret[key] = _pad(data, 1)
+            else:
+                ret[key] = _pad(data, self.tokenizer.pad_token_id)
+
+        return ret
