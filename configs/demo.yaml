@@ -1,5 +1,7 @@
 INPUT:
   PROCESSOR_NAME: SentencePair
+  MLM:
+    ENABLED: True
 DATASETS:
   TRAIN: ("wiki_train", )
 TOKENIZER:

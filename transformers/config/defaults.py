@@ -62,6 +62,21 @@ _C.INPUT.PADDING_STRATEGY = "right"
 # Pad the sequence to a multiple of the provided value
 _C.INPUT.PAD_TO_MULTIPLE = 1
 
+# Whether or not to use masked language modeling
+_C.INPUT.MLM = CN({"ENABLED": False})
+# The probability to mask tokens in the input randomly
+_C.INPUT.MLM.PROBABILITY = 0.15
+# The probability to replace chosen token with mask_token
+_C.INPUT.MLM.MASK_PROBABILITY = 0.8
+# The probability to replace chosen token with a random token
+_C.INPUT.MLM.RANDOM_PROBABILITY = 0.1
+# Keep the chosen token unchanged for the reset time,
+# i.e. 1 - MASK_PROBABILITY - RANDOM_PROBABILITY.
+# It means MASK_PROBABILITY + RANDOM_PROBABILITY should be <= 1.
+# Example: the probability for a token is changed to mask token is
+# P(mask_token) * P(chosen) = 0.8 * 0.15 = 0.12
+# See 3.1 in https://arxiv.org/abs/1810.04805 for more information
+
 
 # --------------------------------------------------------------------------- #
 # Dataset
