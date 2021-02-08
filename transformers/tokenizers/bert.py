@@ -89,6 +89,8 @@ class BertTokenizer(Tokenizer):
         self.pad_token_id = self.convert_tokens_to_ids(pad_token)
         self.cls_token_id = self.convert_tokens_to_ids(cls_token)
         self.mask_token_id = self.convert_tokens_to_ids(mask_token)
+        # an extra id
+        self.pad_token_type_id = 0
 
         self.basic_tokenizer = BasicTokenizer(do_lower_case, tokenize_chinese_chars)
         self.wordpiece_tokenizer = WordpieceTokenizer(self.vocab, unk_token)
