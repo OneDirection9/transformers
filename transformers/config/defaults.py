@@ -44,7 +44,7 @@ _C.INPUT = CN()
 # The processor can by any name in the PROCESSOR_REGISTRY,
 # or "" (no processor)
 _C.INPUT.PROCESSOR_NAME = ""
-# Maximum block size, also reused by `DataCollator`
+# Maximum length of input sequences, used by `Processor`, `DataCollator`
 _C.INPUT.BLOCK_SIZE = 512
 
 # Probability for generating shorter block pairs, see `SentencePair`
@@ -95,6 +95,28 @@ _C.DATALOADER.NUM_WORKERS = 4
 # Options: TrainingSampler
 _C.DATALOADER.SAMPLER_TRAIN = "TrainingSampler"
 
+
+# --------------------------------------------------------------------------- #
+# Model
+# --------------------------------------------------------------------------- #
+_C.MODEL = CN()
+# Path (a file path, or URL like https://) to a checkpoint file
+# to be loaded to the model.
+_C.MODEL.WEIGHTS = ""
+
+# --------------------------------------------------------------------------- #
+# Bert
+# --------------------------------------------------------------------------- #
+_C.MODEL.BERT = CN()
+# Size of the encoder layers and the pooler layer
+_C.MODEL.BERT.HIDDEN_SIZE = 768
+# The epsilon used by the layer normalization layers.
+# The default value is 1e-5 in PyTorch, 1e-12 in TensorFlow.
+# Default to 1e-2 to keep consistent with official implementation.
+_C.MODEL.BERT.LAYER_NORM_EPS = 1e-12
+# The dropout probability for all fully connected layers in the
+# embeddings, encoder, and pooler.
+_C.MODEL.BERT.HIDDEN_DROPOUT_PROB = 0.1
 
 # --------------------------------------------------------------------------- #
 # Solver
