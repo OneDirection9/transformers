@@ -11,7 +11,7 @@ class DatasetMapper(object):
     """
     A callable which takes a dataset dict and map it into a format used by the model.
 
-    A mapper can be used to augment data at each step. Currently it does nothing.
+    A mapper can be used for data augmentation at each step. Currently it does nothing.
     """
 
     @configurable
